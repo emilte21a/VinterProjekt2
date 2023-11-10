@@ -6,13 +6,10 @@ public class CaveGeneration
 
     private int getPixel;
 
-    private int worldSize = 100;
+    private int worldSize = 240;
 
-    private int tileWidth = 1000;
+    private int tileWidth = 40;
 
-    Image perlinImage;
-
-    Texture2D texture;
 
     private List<Rectangle> worldTiles = new();
 

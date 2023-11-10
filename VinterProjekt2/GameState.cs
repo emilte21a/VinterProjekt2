@@ -8,15 +8,22 @@ public class GameState
     CaveGeneration caveGeneration;
 
     Camera2D camera;
-    public GameState()
+    public GameState() //Fungerar som en start funktion i unity.
     {
         Raylib.InitWindow(screenWidth, screenHeight, "scary");
         Raylib.SetTargetFPS(60);
 
-        player = new Fighter();
-        caveGeneration = new CaveGeneration();
-        caveGeneration.GenerateTerrain();
-        camera = new();
+       // caveGeneration = new CaveGeneration();
+       // caveGeneration.GenerateTerrain();
+
+        camera = new()
+        {
+            zoom = 0.5f,
+            offset = new Vector2(screenWidth / 2, screenHeight / 2)
+            // target = player.playerPosition
+        };
+        player = new Fighter() {camera = camera};
+        camera.target = player.playerPosition;
     }
     public void Run()
     {
@@ -30,30 +37,34 @@ public class GameState
     }
 
 
-    private void Update()
+    private void Update() //Uppdaterar logiken i spelet
     {
-        player.playerRect.x = player.playerXmovement(player.playerRect.x, 10);
+        player.playerRect.x = player.PlayerXmovement(player.playerRect.x, 10);
+        player.playerRect.y = player.PlayerYmovement(player.playerRect.y, 10);
         CameraUpdate();
-        camera.target = player.playerPosition;
-        camera.offset = new Vector2(screenWidth/2,screenHeight/2);
-        
+
         player.Shoot(15);
     }
 
-    private void Draw()
+    private void Draw() //Ritar ut spelet
     {
         Raylib.BeginDrawing();
+        Raylib.BeginMode2D(camera);
         Raylib.ClearBackground(Color.WHITE);
-        
-        caveGeneration.Draw();
+
+        //caveGeneration.Draw();
         Raylib.DrawRectangleRec(player.playerRect, Color.ORANGE);
         player.DrawBullets();
 
+        Raylib.EndMode2D();
+
+        Raylib.DrawFPS(20, 20);
 
         Raylib.EndDrawing();
     }
 
-    private void CameraUpdate(){
+    private void CameraUpdate()
+    {
         player.playerPosition.X = player.playerRect.x;
         player.playerPosition.Y = player.playerRect.y;
     }
