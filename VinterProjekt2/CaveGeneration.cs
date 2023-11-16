@@ -8,7 +8,7 @@ public class CaveGeneration
 
     private int worldSize = 240;
 
-    private int tileWidth = 40;
+    private int tileWidth = 80;
 
 
     private List<Rectangle> worldTiles = new();

@@ -20,3 +20,4 @@ C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\obj\Debug\net7.0\refin
 C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\obj\Debug\net7.0\VinterProjekt2.pdb
 C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\obj\Debug\net7.0\VinterProjekt2.genruntimeconfig.cache
 C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\obj\Debug\net7.0\ref\VinterProjekt2.dll
+c:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\MouseCursor.png

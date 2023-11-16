@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Security.Cryptography;
+using System.Security.Principal;
 using Raylib_cs;
 
 
@@ -20,8 +21,6 @@ public class Fighter
     {
         hp = 100;
         playerRect = new Rectangle(0, 0, playerWidth, playerWidth);
-        //playerRect.x = PlayerXmovement(playerRect.x, 4);
-        //playerRect.y = PlayerYmovement(playerRect.y, 4);
     }
 
     public float PlayerXmovement(float playerPos, float speed)
@@ -53,30 +52,22 @@ public class Fighter
         Vector2 mousePosition = Raylib.GetMousePosition() - camera.offset;
         Vector2 pos = new Vector2(playerRect.x, playerRect.y);
         Vector2 diff = mousePosition - pos;
-        bulletDirection = Vector2.Normalize(diff);
-
-        Console.WriteLine(mousePosition);
-        
+        bulletDirection = Vector2.Normalize(diff+pos);    
         
         if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
             bullets.Add(new Bullet(new Vector2(playerRect.x + playerRect.width / 2, playerRect.y + playerRect.height / 2), bulletDirection, speed));
 
         foreach (var bullet in bullets)
-        {
             bullet.Update();
-        }
+        
         //System.Console.WriteLine(bullets.Count);
     }
 
     public void DrawBullets()
     {
         foreach (var bullet in bullets)
-        {
             bullet.Draw();
-        }
+        
     }
-
-
-
 }
 
