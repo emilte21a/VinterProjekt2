@@ -7,22 +7,25 @@ public class GameState
     Fighter player;
     CaveGeneration caveGeneration;
 
-    Texture2D cursor;
+    Texture2D cursorSprite;
+    Texture2D playerSprite;
 
 
     Camera2D camera;
     public GameState() //Fungerar som en start funktion i unity.
     {
         Raylib.InitWindow(screenWidth, screenHeight, "scary");
-        cursor = Raylib.LoadTexture("Bilder/MouseCursor.png");
+
+        cursorSprite = Raylib.LoadTexture("Bilder/MouseCursor.png");
+        playerSprite = Raylib.LoadTexture("Bilder/CharacterSpriteSheet.png");
         Raylib.SetTargetFPS(60);
 
-        //caveGeneration = new CaveGeneration();
-        //caveGeneration.GenerateTerrain();
+        caveGeneration = new CaveGeneration();
+        caveGeneration.GenerateTerrain();
 
         camera = new()
         {
-            zoom = 0.5f,
+            zoom = 1f,
             offset = new Vector2(screenWidth / 2, screenHeight / 2)
             // target = player.playerPosition
         };
@@ -54,20 +57,23 @@ public class GameState
     }
 
 
-
     private void Draw() //Ritar ut spelet
     {
+        Rectangle sourceRect = new Rectangle(player.DrawPlayer() * playerSprite.width / 6, 0, playerSprite.width / 6, playerSprite.height);
         Raylib.BeginDrawing();
         Raylib.BeginMode2D(camera);
         Raylib.ClearBackground(Color.WHITE);
 
-        //caveGeneration.Draw();
+        caveGeneration.Draw();  
+        Raylib.DrawTexture(caveGeneration.perlinImage,0,0,Color.WHITE);
         Raylib.DrawRectangleRec(player.playerRect, Color.ORANGE);
+        Raylib.DrawTextureRec(playerSprite, sourceRect, player.playerPosition - new Vector2(player.playerRect.width / 2, player.playerRect.height / 2), Color.WHITE);
+       
         player.DrawBullets();
 
-        Raylib.DrawTextureEx(cursor, new Vector2((int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).X + (cursor.width / Raylib.GetMousePosition().X)/2, (int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).Y + (cursor.height / Raylib.GetMousePosition().Y)/2), (float)RadiansToDegrees() + 90, 1, Color.WHITE);
-        Raylib.DrawRectangle((int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).X, (int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).Y, 5, 5, Color.BLUE);
-        System.Console.WriteLine(RadiansToDegrees());
+        Raylib.DrawTexturePro(cursorSprite, new Rectangle(0, 0, cursorSprite.width, cursorSprite.height), new Rectangle((int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).X, (int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).Y, cursorSprite.width, cursorSprite.height), new Vector2((int)cursorSprite.width / 2, (int)cursorSprite.height / 2), (int)RadiansToDegrees(), Color.WHITE);
+        //Raylib.DrawRectangle((int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).X, (int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).Y, 5, 5, Color.BLUE);
+
         Raylib.EndMode2D();
 
         Raylib.DrawFPS(20, 20);
@@ -84,7 +90,7 @@ public class GameState
     private double RadiansToDegrees()
     {
         Vector2 mousePosition = Raylib.GetMousePosition() - camera.offset;
-        Vector2 pos = new Vector2(player.playerRect.x, player.playerRect.y);
+        Vector2 pos = new Vector2(player.playerRect.x + playerSprite.width / 6, player.playerRect.y + playerSprite.height / 2);
         Vector2 diff = mousePosition - pos;
         Vector2 cursorDirection = Vector2.Normalize(diff + pos);
         double radians = Math.Atan2(cursorDirection.Y, cursorDirection.X);

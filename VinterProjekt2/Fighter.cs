@@ -15,12 +15,14 @@ public class Fighter
 
     private int playerWidth = 40;
 
+    Texture2D playerSprite = Raylib.LoadTexture("Bilder/CharacterSpriteSheet.png");
+
     public Camera2D camera { get; init; }
 
     public Fighter()
     {
         hp = 100;
-        playerRect = new Rectangle(0, 0, playerWidth, playerWidth);
+        playerRect = new Rectangle(0, 0, playerSprite.width / 6, playerSprite.height);
     }
 
     public float PlayerXmovement(float playerPos, float speed)
@@ -59,14 +61,29 @@ public class Fighter
 
         foreach (var bullet in bullets)
             bullet.Update();
-        
-        //System.Console.WriteLine(bullets.Count);
     }
 
     public void DrawBullets()
     {
         foreach (var bullet in bullets)
             bullet.Draw();
+        
+    }
+    int frame = 0;
+    int timer = 0;
+    public float DrawPlayer(){
+        timer++;
+        int maxFrames = 6;
+        if (timer > 10)
+        {
+
+            frame++;
+            timer = 0;
+        }
+        
+
+        return frame %= maxFrames;
+
         
     }
 }
