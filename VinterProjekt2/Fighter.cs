@@ -6,12 +6,13 @@ using Raylib_cs;
 
 public class Fighter
 {
-
     public int hp;
 
     public Rectangle playerRect;
 
     public Vector2 playerPosition;
+
+    private Vector2 lastPos;
 
     private int playerWidth = 40;
 
@@ -36,12 +37,13 @@ public class Fighter
         return playerPos;
     }
 
-    public float PlayerYmovement(float playerPos, float speed){
+    public float PlayerYmovement(float playerPos, float speed)
+    {
         if (Raylib.IsKeyDown(KeyboardKey.KEY_W))
-            playerPos-=speed;
-        
+            playerPos -= speed;
+
         else if (Raylib.IsKeyDown(KeyboardKey.KEY_S))
-            playerPos+=speed;
+            playerPos += speed;
 
         return playerPos;
     }
@@ -54,8 +56,8 @@ public class Fighter
         Vector2 mousePosition = Raylib.GetMousePosition() - camera.offset;
         Vector2 pos = new Vector2(playerRect.x, playerRect.y);
         Vector2 diff = mousePosition - pos;
-        bulletDirection = Vector2.Normalize(diff+pos);    
-        
+        bulletDirection = Vector2.Normalize(diff + pos);
+
         if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
             bullets.Add(new Bullet(new Vector2(playerRect.x + playerRect.width / 2, playerRect.y + playerRect.height / 2), bulletDirection, speed));
 
@@ -67,11 +69,14 @@ public class Fighter
     {
         foreach (var bullet in bullets)
             bullet.Draw();
-        
+
     }
     int frame = 0;
     int timer = 0;
-    public float DrawPlayer(){
+    
+
+    public float DrawPlayer()
+    {
         timer++;
         int maxFrames = 6;
         if (timer > 10)
@@ -80,11 +85,25 @@ public class Fighter
             frame++;
             timer = 0;
         }
-        
+
 
         return frame %= maxFrames;
+    }
 
+    public bool CheckCollision(CaveGeneration cave)
+    {
+        return cave.worldTiles.Any(worldTile => Raylib.CheckCollisionRecs(playerRect, worldTile));
+    }
+
+    public void ResetPosition(CaveGeneration cave)
+    {
+        if (CheckCollision(cave))
+        {
+            playerPosition = lastPos;
+            
+        }
         
+        lastPos = new Vector2(playerRect.x, playerRect.y);
     }
 }
 
