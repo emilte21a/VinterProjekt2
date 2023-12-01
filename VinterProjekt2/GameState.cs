@@ -2,15 +2,18 @@ using Raylib_cs;
 using System.Numerics;
 public class GameState
 {
+
     const int screenWidth = 850;
     const int screenHeight = 850;
     Fighter player;
+
+    //Instanser
     CaveGeneration caveGeneration;
+    StateManager sceneMan;
+    CameraSmooth cameraSmoothing;
 
     Texture2D cursorSprite;
     Texture2D playerSprite;
-
-
     Camera2D camera;
     public GameState() //Fungerar som en start funktion i unity.
     {
@@ -19,20 +22,17 @@ public class GameState
         cursorSprite = Raylib.LoadTexture("Bilder/MouseCursor.png");
         playerSprite = Raylib.LoadTexture("Bilder/CharacterSpriteSheet.png");
         Raylib.SetTargetFPS(60);
+        sceneMan = StateManager.Start;
 
-        caveGeneration = new CaveGeneration();
-        caveGeneration.GenerateTerrain();
+        caveGeneration = new();
+        cameraSmoothing = new();
 
         camera = new()
         {
             zoom = 0.6f,
             offset = new Vector2(screenWidth / 2, screenHeight / 2)
-            // target = player.playerPosition
         };
         player = new Fighter() { camera = camera };
-
-        Raylib.HideCursor();
-        Raylib.DisableCursor();
     }
     public void Run()
     {
@@ -45,48 +45,75 @@ public class GameState
         Raylib.CloseWindow();
     }
 
-
     private void Update() //Uppdaterar logiken i spelet
     {
-        player.playerRect.x = player.PlayerXmovement(player.playerRect.x, 10);
-        player.playerRect.y = player.PlayerYmovement(player.playerRect.y, 10);
-        CameraUpdate();
-        player.ResetPosition(caveGeneration);
-        camera.target = player.playerPosition;
-        EnableCursor();
+        if (sceneMan == StateManager.Start)
+        {
+            if (Raylib.IsKeyPressed(KeyboardKey.KEY_F))
+            {
+                sceneMan = StateManager.Game;
+                caveGeneration.GenerateTerrain();
+                Raylib.HideCursor();
+                Raylib.DisableCursor();
+            }
+        }
 
-        player.Shoot(15);
+        else if (sceneMan == StateManager.Game)
+        {
+            player.playerRect.x = player.PlayerXmovement(player.playerRect.x, 10);
+            player.playerRect.y = player.PlayerYmovement(player.playerRect.y, 10);
+            CameraUpdate();
+            player.ResetPosition(caveGeneration);
+            camera.target = cameraSmoothing.Lerp(lastPosition, player.playerPosition, 2);
+            EnableCursor();
+
+            player.Shoot(15);
+        }
+        else if (sceneMan == StateManager.GameOver)
+        {
+
+        }
     }
-
-
-
 
     private void Draw() //Ritar ut spelet
     {
-        Rectangle sourceRect = new Rectangle(player.DrawPlayer() * playerSprite.width / 6, 0, playerSprite.width / 6, playerSprite.height);
         Raylib.BeginDrawing();
-        Raylib.BeginMode2D(camera);
-        Raylib.ClearBackground(Color.WHITE);
+        if (sceneMan == StateManager.Start)
+        {
+            Raylib.DrawText("scary game", screenWidth / 2, screenHeight / 2, 50, Color.ORANGE);
+        }
 
-        caveGeneration.Draw();
-        //Raylib.DrawTexture(caveGeneration.perlinImage,0,0,Color.WHITE);
-        Raylib.DrawRectangleRec(player.playerRect, Color.ORANGE);
-        Raylib.DrawTextureRec(playerSprite, sourceRect, player.playerPosition - new Vector2(player.playerRect.width / 2, player.playerRect.height / 2), Color.WHITE);
+        else if (sceneMan == StateManager.Game)
+        {
+            Rectangle sourceRect = new Rectangle(player.DrawPlayer() * playerSprite.width / 6, 0, playerSprite.width / 6, playerSprite.height);
+            Raylib.BeginMode2D(camera);
+            Raylib.ClearBackground(Color.WHITE);
 
-        player.DrawBullets();
+            caveGeneration.Draw();
+            //Raylib.DrawTexture(caveGeneration.perlinImage,0,0,Color.WHITE);
+            Raylib.DrawTextureRec(playerSprite, sourceRect, player.playerPosition - new Vector2(player.playerRect.width / 2, player.playerRect.height / 2), Color.WHITE);
 
-        Raylib.DrawTexturePro(cursorSprite, new Rectangle(0, 0, cursorSprite.width, cursorSprite.height), new Rectangle((int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).X, (int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).Y, cursorSprite.width, cursorSprite.height), new Vector2((int)cursorSprite.width / 2, (int)cursorSprite.height / 2), (int)RadiansToDegrees(), Color.WHITE);
-        //Raylib.DrawRectangle((int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).X, (int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).Y, 5, 5, Color.BLUE);
+            player.DrawBullets();
 
-        Raylib.EndMode2D();
+            Raylib.DrawTexturePro(cursorSprite, new Rectangle(0, 0, cursorSprite.width, cursorSprite.height), new Rectangle((int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).X, (int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).Y, cursorSprite.width, cursorSprite.height), new Vector2((int)cursorSprite.width / 2, (int)cursorSprite.height / 2), (int)RadiansToDegrees(), Color.WHITE);
+            //Raylib.DrawRectangle((int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).X, (int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).Y, 5, 5, Color.BLUE);
 
-        Raylib.DrawFPS(20, 20);
+            Raylib.EndMode2D();
 
+            Raylib.DrawFPS(20, 20);
+
+        }
+        else if (sceneMan == StateManager.GameOver)
+        {
+
+        }
         Raylib.EndDrawing();
-    }
 
+    }
+    Vector2 lastPosition;
     private void CameraUpdate()
     {
+        lastPosition = player.playerPosition;
         player.playerPosition.X = player.playerRect.x + player.playerRect.width / 2;
         player.playerPosition.Y = player.playerRect.y + player.playerRect.height / 2;
     }
@@ -112,7 +139,7 @@ public class GameState
             Raylib.EnableCursor();
             cursorIsShown = true;
         }
-        
+
         else if (Raylib.IsKeyPressed(KeyboardKey.KEY_T) && cursorIsShown)
         {
             Raylib.HideCursor();

@@ -51,6 +51,8 @@ public class Fighter
     Vector2 bulletDirection;
     List<Bullet> bullets = new();
 
+    List<Bullet> bulletsToDestroy = new();
+
     public void Shoot(float speed)
     {
         Vector2 mousePosition = Raylib.GetMousePosition() - camera.offset;
@@ -62,7 +64,14 @@ public class Fighter
             bullets.Add(new Bullet(new Vector2(playerRect.x + playerRect.width / 2, playerRect.y + playerRect.height / 2), bulletDirection, speed));
 
         foreach (var bullet in bullets)
+        {
             bullet.Update();
+            if (bullet.ShouldDestroy())
+            {
+                bulletsToDestroy.Add(bullet);
+                bulletsToDestroy.Remove(bullet);
+            }
+        }
     }
 
     public void DrawBullets()
@@ -92,18 +101,18 @@ public class Fighter
 
     public bool CheckCollision(CaveGeneration cave)
     {
-        return cave.worldTiles.Any(worldTile => Raylib.CheckCollisionRecs(playerRect, worldTile));
+        return cave.worldTiles.Any(worldTile => Raylib.CheckCollisionRecs(playerRect, worldTile.tileRect));
     }
 
     public void ResetPosition(CaveGeneration cave)
     {
+        lastPos = new Vector2(playerRect.x, playerRect.y);
         if (CheckCollision(cave))
         {
             playerPosition = lastPos;
             
         }
         
-        lastPos = new Vector2(playerRect.x, playerRect.y);
     }
 }
 

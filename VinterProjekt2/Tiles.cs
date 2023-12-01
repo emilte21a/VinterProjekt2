@@ -1,33 +1,32 @@
-
-using System.Drawing;
 using System.Numerics;
+using Raylib_cs;
 
 public class Tile
 {
 
-    public Rectangle tile;
-    public List<int> BoundsXY;
-
-    public Vector2 pos;
-
-    public Tile()
-    {
-        BoundsXY = new();
-        tile = new((int)pos.X, (int)pos.Y, BoundsXY[0], BoundsXY[1]);
+    public Rectangle tileRect;
+    public Vector2 Pos {
+        get => new Vector2(tileRect.x, tileRect.y);
+        set {
+            tileRect.x = value.X;
+            tileRect.y = value.Y;
+        }
     }
+
+    public int tileSize = 50;
+    public Texture2D texture;
 }
-
-
 
 public class Stone : Tile
 {
-    Tile tile = new();
-
+    
+    Texture2D stoneTexture = Raylib.LoadTexture("Bilder/Stone.png");
     public Stone()
     {
-        tile.BoundsXY = new(4);
-        tile.pos = new Vector2(0, 0);
-        tile.tile = new((int)pos.X, (int)pos.Y, BoundsXY[0], BoundsXY[1]);
-
+        tileRect = new Rectangle(0, 0, tileSize, tileSize);
+        Pos = new Vector2(0, 0);
+        // tileRect.x = Pos.X;
+        // tileRect.y = Pos.Y;
+        texture = stoneTexture;
     }
 }
