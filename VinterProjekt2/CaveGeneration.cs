@@ -6,7 +6,7 @@ public class CaveGeneration
 
     private int worldSize = 50;
 
-    private int tileWidth = 50;
+    private int tileWidth = 50; 
 
     private int Seed;
 

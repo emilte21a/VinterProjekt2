@@ -14,7 +14,7 @@ public class Fighter
 
     private Vector2 lastPos;
 
-    private int playerWidth = 40;
+    public string playerDirection;
 
     Texture2D playerSprite = Raylib.LoadTexture("Bilder/CharacterSpriteSheet.png");
 
@@ -23,16 +23,22 @@ public class Fighter
     public Fighter()
     {
         hp = 100;
-        playerRect = new Rectangle(0, 0, playerSprite.width / 6, playerSprite.height);
+        playerRect = new Rectangle(-50, 0, playerSprite.width / 6, playerSprite.height);
     }
 
     public float PlayerXmovement(float playerPos, float speed)
     {
         if (Raylib.IsKeyDown(KeyboardKey.KEY_A))
+        {
             playerPos -= speed;
+            playerDirection = "left";
+        }
 
         else if (Raylib.IsKeyDown(KeyboardKey.KEY_D))
+        {
             playerPos += speed;
+            playerDirection = "right";
+        }
 
         return playerPos;
     }
@@ -40,10 +46,16 @@ public class Fighter
     public float PlayerYmovement(float playerPos, float speed)
     {
         if (Raylib.IsKeyDown(KeyboardKey.KEY_W))
+        {
             playerPos -= speed;
+            playerDirection = "up";
+        }
 
         else if (Raylib.IsKeyDown(KeyboardKey.KEY_S))
+        {
             playerPos += speed;
+            playerDirection = "down";
+        }
 
         return playerPos;
     }
@@ -112,6 +124,21 @@ public class Fighter
             if (collidingTile != null)
             {
                 float intersectionWidth = Math.Min(playerRect.x + playerRect.width, collidingTile.tileRect.x + collidingTile.tileRect.width) - Math.Max(playerRect.x, collidingTile.tileRect.x);
+                float intersectionHeight = Math.Min(playerRect.y + playerRect.height, collidingTile.tileRect.y + collidingTile.tileRect.height) - Math.Max(playerRect.y, collidingTile.tileRect.height);
+
+                if (playerDirection == "right")
+                    playerRect.x -= intersectionWidth;
+
+                else if (playerDirection == "down")
+                    playerRect.y -= intersectionHeight;
+
+                
+                else if (playerDirection == "left")
+                    playerRect.x += intersectionWidth;
+
+                else if (playerDirection == "up")
+                    playerRect.y += intersectionHeight;
+                
             }
             // playerRect.x = lastPos.X;
             // playerRect.y = lastPos.Y;
