@@ -1,3 +1,4 @@
+using System.Dynamic;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Security.Principal;
@@ -11,10 +12,6 @@ public class Fighter
     public Rectangle playerRect;
 
     public Vector2 playerPosition;
-
-    private Vector2 lastPos;
-
-    public string playerDirection;
 
     Texture2D playerSprite = Raylib.LoadTexture("Bilder/CharacterSpriteSheet.png");
 
@@ -30,14 +27,12 @@ public class Fighter
     {
         if (Raylib.IsKeyDown(KeyboardKey.KEY_A))
         {
-            playerPos -= speed;
-            playerDirection = "left";
+            playerPos -= speed * Raylib.GetFrameTime() * 50;
         }
 
-        else if (Raylib.IsKeyDown(KeyboardKey.KEY_D))
+        if (Raylib.IsKeyDown(KeyboardKey.KEY_D))
         {
-            playerPos += speed;
-            playerDirection = "right";
+            playerPos += speed * Raylib.GetFrameTime() * 50;
         }
 
         return playerPos;
@@ -47,40 +42,80 @@ public class Fighter
     {
         if (Raylib.IsKeyDown(KeyboardKey.KEY_W))
         {
-            playerPos -= speed;
-            playerDirection = "up";
+            playerPos -= speed * Raylib.GetFrameTime() * 50;
         }
 
-        else if (Raylib.IsKeyDown(KeyboardKey.KEY_S))
+        if (Raylib.IsKeyDown(KeyboardKey.KEY_S))
         {
-            playerPos += speed;
-            playerDirection = "down";
+            playerPos += speed * Raylib.GetFrameTime() * 50;
         }
 
         return playerPos;
     }
 
-    Vector2 bulletDirection;
-    List<Bullet> bullets = new();
+    public enum PlayerDirection
+    {
+        Idle,
+        Left,
+        Right,
+        Up,
+        Down,
+        RightUp,
+        RightDown,
+        LeftUp,
+        LeftDown
+    }
 
+    public PlayerDirection GetPlayerDirection()
+    {
+        if (Raylib.IsKeyDown(KeyboardKey.KEY_A))
+            return PlayerDirection.Left;
+
+        else if (Raylib.IsKeyDown(KeyboardKey.KEY_D))
+            return PlayerDirection.Right;
+
+        else if (Raylib.IsKeyDown(KeyboardKey.KEY_W))
+            return PlayerDirection.Up;
+
+        else if (Raylib.IsKeyDown(KeyboardKey.KEY_S))
+            return PlayerDirection.Down;
+
+        else if (Raylib.IsKeyDown(KeyboardKey.KEY_D) && Raylib.IsKeyDown(KeyboardKey.KEY_W))
+            return PlayerDirection.RightUp;
+
+        else if (Raylib.IsKeyDown(KeyboardKey.KEY_D) && Raylib.IsKeyDown(KeyboardKey.KEY_S))
+            return PlayerDirection.RightDown;
+
+        else if (Raylib.IsKeyDown(KeyboardKey.KEY_A) && Raylib.IsKeyDown(KeyboardKey.KEY_W))
+            return PlayerDirection.LeftUp;
+
+        else if (Raylib.IsKeyDown(KeyboardKey.KEY_A) && Raylib.IsKeyDown(KeyboardKey.KEY_S))
+            return PlayerDirection.LeftDown;
+
+        else
+            return PlayerDirection.Idle;
+    }
+
+    List<Bullet> bullets = new();
     List<Bullet> bulletsToDestroy = new();
 
-    public void Shoot(float speed)
+    public void Shoot(float _speed)
     {
         Vector2 mousePosition = Raylib.GetMousePosition() - camera.offset;
         Vector2 pos = new Vector2(playerRect.x, playerRect.y);
         Vector2 diff = mousePosition - pos;
-        bulletDirection = Vector2.Normalize(diff + pos);
+        Vector2 bulletDirection = Vector2.Normalize(diff + pos);
 
         if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
-            bullets.Add(new Bullet(new Vector2(playerRect.x + playerRect.width / 2, playerRect.y + playerRect.height / 2), bulletDirection, speed));
+            bullets.Add(new Bullet(new Vector2(playerRect.x + playerRect.width / 2, playerRect.y + playerRect.height / 2), bulletDirection, _speed));
 
         foreach (var bullet in bullets)
         {
             bullet.Update();
             if (bullet.ShouldDestroy(playerRect))
             {
-                bulletsToDestroy.Add(bullet);
+                bullets.RemoveAll(bullet => bulletsToDestroy.Contains(bullet));
+                bulletsToDestroy.Clear();
             }
         }
     }
@@ -90,21 +125,18 @@ public class Fighter
         foreach (var bullet in bullets)
             bullet.Draw();
     }
-    int frame = 0;
+
+    int frame { get; set; }
     int timer = 0;
-
-
-    public float DrawPlayer()
+    public int DrawPlayer(int _maxFrames, int _timePerFrame)
     {
         timer++;
-        int maxFrames = 6;
-        if (timer > 10)
+        if (timer > _timePerFrame)
         {
-
             frame++;
             timer = 0;
         }
-        return frame %= maxFrames;
+        return frame %= _maxFrames;
     }
 
     public bool CheckCollision(CaveGeneration cave)
@@ -112,10 +144,71 @@ public class Fighter
         return cave.worldTiles.Any(worldTile => Raylib.CheckCollisionRecs(playerRect, worldTile.tileRect));
     }
 
+    float intersectionWidth;
+    float intersectionHeight;
+
+    public void CalculateCollisionSize(PlayerDirection _direction, Rectangle _playerRectangle, Tile _collidingTile)
+    {
+        if (_direction == PlayerDirection.Right)
+        {
+            intersectionHeight = 0;
+            intersectionWidth = Math.Min(_playerRectangle.x + _playerRectangle.width, _collidingTile.tileRect.x + _collidingTile.tileRect.width) - Math.Max(_playerRectangle.x, _collidingTile.tileRect.x);
+            playerRect.x -= intersectionWidth;
+        }
+
+        else if (_direction == PlayerDirection.Left)
+        {
+            intersectionHeight = 0;
+            intersectionWidth = Math.Min(_playerRectangle.x + _playerRectangle.width, _collidingTile.tileRect.x + _collidingTile.tileRect.width) - Math.Max(_playerRectangle.x, _collidingTile.tileRect.x);
+            playerRect.x += intersectionWidth;
+        }
+
+        else if (_direction == PlayerDirection.Down)
+        {
+            intersectionWidth = 0;
+            intersectionHeight = Math.Min(_playerRectangle.y + _playerRectangle.height, _collidingTile.tileRect.y + _collidingTile.tileRect.height) - Math.Max(_playerRectangle.y, _collidingTile.tileRect.y);
+            playerRect.y -= intersectionHeight;
+        }
+
+        else if (_direction == PlayerDirection.Up)
+        {
+            intersectionWidth = 0;
+            intersectionHeight = Math.Min(_playerRectangle.y + _playerRectangle.height, _collidingTile.tileRect.y + _collidingTile.tileRect.height) - Math.Max(_playerRectangle.y, _collidingTile.tileRect.y);
+            playerRect.y += intersectionHeight;
+        }
+
+        // else if (_direction == PlayerDirection.RightUp)
+        // {
+        //     intersectionWidth = Math.Min(_playerRectangle.x + _playerRectangle.width, _collidingTile.tileRect.x + _collidingTile.tileRect.width) - Math.Max(_playerRectangle.x, _collidingTile.tileRect.x);
+        //     intersectionHeight = Math.Min(_playerRectangle.y + _playerRectangle.height, _collidingTile.tileRect.y + _collidingTile.tileRect.height) - Math.Max(_playerRectangle.y, _collidingTile.tileRect.y);
+        //     playerRect.x-=intersectionWidth;
+        //     playerRect.y+=intersectionHeight;
+        // }
+        // else if (_direction == PlayerDirection.RightDown)
+        // {
+        //     intersectionWidth = Math.Min(_playerRectangle.x + _playerRectangle.width, _collidingTile.tileRect.x + _collidingTile.tileRect.width) - Math.Max(_playerRectangle.x, _collidingTile.tileRect.x);
+        //     intersectionHeight = Math.Min(_playerRectangle.y + _playerRectangle.height, _collidingTile.tileRect.y + _collidingTile.tileRect.height) - Math.Max(_playerRectangle.y, _collidingTile.tileRect.y);
+        //     playerRect.x-=intersectionWidth;
+        //     playerRect.y-=intersectionHeight;
+        // }
+        // else if (_direction == PlayerDirection.LeftUp)
+        // {
+        //     intersectionWidth = Math.Min(_playerRectangle.x + _playerRectangle.width, _collidingTile.tileRect.x + _collidingTile.tileRect.width) - Math.Max(_playerRectangle.x, _collidingTile.tileRect.x);
+        //     intersectionHeight = Math.Min(_playerRectangle.y + _playerRectangle.height, _collidingTile.tileRect.y + _collidingTile.tileRect.height) - Math.Max(_playerRectangle.y, _collidingTile.tileRect.y);
+        //     playerRect.x+=intersectionWidth;
+        //     playerRect.y+=intersectionHeight;
+        // }
+        // else if (_direction == PlayerDirection.LeftDown)
+        // {
+        //     intersectionWidth = Math.Min(_playerRectangle.x + _playerRectangle.width, _collidingTile.tileRect.x + _collidingTile.tileRect.width) - Math.Max(_playerRectangle.x, _collidingTile.tileRect.x);
+        //     intersectionHeight = Math.Min(_playerRectangle.y + _playerRectangle.height, _collidingTile.tileRect.y + _collidingTile.tileRect.height) - Math.Max(_playerRectangle.y, _collidingTile.tileRect.y);
+        //     playerRect.x+=intersectionWidth;
+        //     playerRect.y-=intersectionHeight;
+        // }
+    }
+
     public void ResetPosition(CaveGeneration cave)
     {
-        lastPos = new Vector2(playerRect.x, playerRect.y);
-
 
         if (CheckCollision(cave))
         {
@@ -123,25 +216,15 @@ public class Fighter
 
             if (collidingTile != null)
             {
-                float intersectionWidth = Math.Min(playerRect.x + playerRect.width, collidingTile.tileRect.x + collidingTile.tileRect.width) - Math.Max(playerRect.x, collidingTile.tileRect.x);
-                float intersectionHeight = Math.Min(playerRect.y + playerRect.height, collidingTile.tileRect.y + collidingTile.tileRect.height) - Math.Max(playerRect.y, collidingTile.tileRect.height);
-
-                if (playerDirection == "right")
-                    playerRect.x -= intersectionWidth;
-
-                else if (playerDirection == "down")
-                    playerRect.y -= intersectionHeight;
-
-                
-                else if (playerDirection == "left")
-                    playerRect.x += intersectionWidth;
-
-                else if (playerDirection == "up")
-                    playerRect.y += intersectionHeight;
-                
+                PlayerDirection direction = GetPlayerDirection();
+                CalculateCollisionSize(direction, playerRect, collidingTile);
             }
-            // playerRect.x = lastPos.X;
-            // playerRect.y = lastPos.Y;
         }
+        else
+        {
+            intersectionHeight = 0;
+            intersectionWidth = 0;
+        }
+        System.Console.WriteLine("width:" + intersectionWidth + " height:" + intersectionHeight);
     }
 }

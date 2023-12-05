@@ -6,7 +6,7 @@ public class CaveGeneration
 
     private int worldSize = 50;
 
-    private int tileWidth = 50; 
+    private int tileWidth = 50;
 
     private int Seed;
 
@@ -26,23 +26,32 @@ public class CaveGeneration
 
     public void GenerateTerrain()
     {
-        noiseImage = Raylib.GenImagePerlinNoise(worldSize, worldSize, Seed, Seed, 5);
-        perlinImage = Raylib.LoadTextureFromImage(noiseImage);
+        // noiseImage = Raylib.GenImagePerlinNoise(worldSize, worldSize, Seed, Seed, 5);
+        // perlinImage = Raylib.LoadTextureFromImage(noiseImage);
 
 
-        for (int x = 0; x < worldSize; x++)
+        // for (int x = 0; x < worldSize; x++)
+        // {
+        //     for (int y = 0; y < worldSize; y++)
+        //     {
+        //         alpha = Raylib.GetImageColor(noiseImage, x, y);
+        //         if (alpha.r > surfaceValue)
+        //         {
+        //             PlaceTile(new Stone(), new Vector2((int)x * tileWidth, (int)y * tileWidth));
+        //         }
+        //     }
+        // }
+
+        // Raylib.UnloadImage(noiseImage);
+        for (int x = 0; x < 6; x++)
         {
-            for (int y = 0; y < worldSize; y++)
+            for (int y = 0; y < 6; y++)
             {
-                alpha = Raylib.GetImageColor(noiseImage, x, y);
-                if (alpha.r > surfaceValue)
-                {
-                    PlaceTile(new Stone(), new Vector2((int)x * tileWidth, (int)y * tileWidth));
-                }
+
+                PlaceTile(new Stone(), new Vector2((int)x * tileWidth, (int)y * tileWidth));
             }
         }
-        
-        Raylib.UnloadImage(noiseImage);
+
     }
 
     private void PlaceTile(Tile _tile, Vector2 _position)
@@ -55,7 +64,9 @@ public class CaveGeneration
     {
         for (int i = 0; i < worldTiles.Count; i++)
         {
-            Raylib.DrawTexture(worldTiles[i].texture, (int)worldTiles[i].Pos.X, (int)worldTiles[i].Pos.Y, Color.WHITE);
+            //Raylib.DrawTexture(worldTiles[i].texture, (int)worldTiles[i].Pos.X, (int)worldTiles[i].Pos.Y, Color.WHITE);
+            Raylib.DrawRectangleRec(worldTiles[i].tileRect,Color.BLACK);
         }
+
     }
 }

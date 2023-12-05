@@ -2,7 +2,6 @@ using Raylib_cs;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
-
 public class Bullet
 {
     float speed;
@@ -18,6 +17,7 @@ public class Bullet
         this.direction = _direction;
         this.speed = _speed;
         bulletRec = new Rectangle(position.X, position.Y, 5, 5);
+
     }
 
     public void Update()
@@ -29,7 +29,7 @@ public class Bullet
 
     public bool ShouldDestroy(Rectangle playerRect)
     {
-        if (bulletRec.x < playerRect.x-100 || bulletRec.x > playerRect.x+100 || bulletRec.y < playerRect.y-100 || bulletRec.y > playerRect.y+100)
+        if (bulletRec.x < playerRect.x - 100 || bulletRec.x > playerRect.x + 100 || bulletRec.y < playerRect.y - 100 || bulletRec.y > playerRect.y + 100)
             return true;
 
         else

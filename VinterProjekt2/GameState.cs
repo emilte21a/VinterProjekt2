@@ -60,10 +60,12 @@ public class GameState
 
         else if (currentState == StateManager.Game)
         {
+
             player.playerRect.x = player.PlayerXmovement(player.playerRect.x, 10);
             player.playerRect.y = player.PlayerYmovement(player.playerRect.y, 10);
-            CameraUpdate();
             player.ResetPosition(caveGeneration);
+            CameraUpdate();
+
             camera.target = cameraSmoothing.Lerp(lastPosition, player.playerPosition, 1.4f);
             EnableCursor();
 
@@ -85,13 +87,15 @@ public class GameState
 
         else if (currentState == StateManager.Game)
         {
-            Rectangle sourceRect = new Rectangle(player.DrawPlayer() * playerSprite.width / 6, 0, playerSprite.width / 6, playerSprite.height);
+            Rectangle sourceRect = new Rectangle(player.DrawPlayer(6, 10) * playerSprite.width / 6, 0, playerSprite.width / 6, playerSprite.height);
             Raylib.BeginMode2D(camera);
             Raylib.ClearBackground(Color.WHITE);
 
             caveGeneration.Draw();
-            Raylib.DrawTextureRec(playerSprite, sourceRect, player.playerPosition - new Vector2(player.playerRect.width / 2, player.playerRect.height / 2), Color.WHITE);
-        
+
+            Raylib.DrawRectangleRec(player.playerRect,Color.ORANGE);
+            // Raylib.DrawTextureRec(playerSprite, sourceRect, player.playerPosition - new Vector2(player.playerRect.width / 2, player.playerRect.height / 2), Color.WHITE);
+
             player.DrawBullets();
 
             Raylib.DrawTexturePro(cursorSprite, new Rectangle(0, 0, cursorSprite.width, cursorSprite.height), new Rectangle((int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).X, (int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).Y, cursorSprite.width, cursorSprite.height), new Vector2((int)cursorSprite.width / 2, (int)cursorSprite.height / 2), (int)RadiansToDegrees(), Color.WHITE);
