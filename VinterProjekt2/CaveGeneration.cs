@@ -53,7 +53,6 @@ public class CaveGeneration
 
     public void Draw()
     {
-        Raylib.DrawTexture(perlinImage, 0, 0, Color.WHITE);
         for (int i = 0; i < worldTiles.Count; i++)
         {
             Raylib.DrawTexture(worldTiles[i].texture, (int)worldTiles[i].Pos.X, (int)worldTiles[i].Pos.Y, Color.WHITE);

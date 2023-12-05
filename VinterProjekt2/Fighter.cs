@@ -66,10 +66,9 @@ public class Fighter
         foreach (var bullet in bullets)
         {
             bullet.Update();
-            if (bullet.ShouldDestroy())
+            if (bullet.ShouldDestroy(playerRect))
             {
                 bulletsToDestroy.Add(bullet);
-                bulletsToDestroy.Remove(bullet);
             }
         }
     }
@@ -78,11 +77,10 @@ public class Fighter
     {
         foreach (var bullet in bullets)
             bullet.Draw();
-
     }
     int frame = 0;
     int timer = 0;
-    
+
 
     public float DrawPlayer()
     {
@@ -94,8 +92,6 @@ public class Fighter
             frame++;
             timer = 0;
         }
-
-
         return frame %= maxFrames;
     }
 
@@ -107,12 +103,18 @@ public class Fighter
     public void ResetPosition(CaveGeneration cave)
     {
         lastPos = new Vector2(playerRect.x, playerRect.y);
+
+
         if (CheckCollision(cave))
         {
-            playerPosition = lastPos;
-            
+            var collidingTile = cave.worldTiles.FirstOrDefault(worldTile => Raylib.CheckCollisionRecs(playerRect, worldTile.tileRect));
+
+            if (collidingTile != null)
+            {
+                float intersectionWidth = Math.Min(playerRect.x + playerRect.width, collidingTile.tileRect.x + collidingTile.tileRect.width) - Math.Max(playerRect.x, collidingTile.tileRect.x);
+            }
+            // playerRect.x = lastPos.X;
+            // playerRect.y = lastPos.Y;
         }
-        
     }
 }
-

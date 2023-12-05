@@ -3,7 +3,6 @@ using Raylib_cs;
 
 public class Tile
 {
-
     public Rectangle tileRect;
     public Vector2 Pos {
         get => new Vector2(tileRect.x, tileRect.y);
@@ -12,7 +11,6 @@ public class Tile
             tileRect.y = value.Y;
         }
     }
-
     public int tileSize = 50;
     public Texture2D texture;
 }
@@ -25,8 +23,6 @@ public class Stone : Tile
     {
         tileRect = new Rectangle(0, 0, tileSize, tileSize);
         Pos = new Vector2(0, 0);
-        // tileRect.x = Pos.X;
-        // tileRect.y = Pos.Y;
         texture = stoneTexture;
     }
 }

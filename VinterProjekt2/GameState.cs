@@ -9,7 +9,7 @@ public class GameState
 
     //Instanser
     CaveGeneration caveGeneration;
-    StateManager sceneMan;
+    StateManager currentState;
     CameraSmooth cameraSmoothing;
 
     Texture2D cursorSprite;
@@ -22,7 +22,7 @@ public class GameState
         cursorSprite = Raylib.LoadTexture("Bilder/MouseCursor.png");
         playerSprite = Raylib.LoadTexture("Bilder/CharacterSpriteSheet.png");
         Raylib.SetTargetFPS(60);
-        sceneMan = StateManager.Start;
+        currentState = StateManager.Start;
 
         caveGeneration = new();
         cameraSmoothing = new();
@@ -47,29 +47,29 @@ public class GameState
 
     private void Update() //Uppdaterar logiken i spelet
     {
-        if (sceneMan == StateManager.Start)
+        if (currentState == StateManager.Start)
         {
             if (Raylib.IsKeyPressed(KeyboardKey.KEY_F))
             {
-                sceneMan = StateManager.Game;
+                currentState = StateManager.Game;
                 caveGeneration.GenerateTerrain();
                 Raylib.HideCursor();
                 Raylib.DisableCursor();
             }
         }
 
-        else if (sceneMan == StateManager.Game)
+        else if (currentState == StateManager.Game)
         {
             player.playerRect.x = player.PlayerXmovement(player.playerRect.x, 10);
             player.playerRect.y = player.PlayerYmovement(player.playerRect.y, 10);
             CameraUpdate();
             player.ResetPosition(caveGeneration);
-            camera.target = cameraSmoothing.Lerp(lastPosition, player.playerPosition, 2);
+            camera.target = cameraSmoothing.Lerp(lastPosition, player.playerPosition, 1.4f);
             EnableCursor();
 
             player.Shoot(15);
         }
-        else if (sceneMan == StateManager.GameOver)
+        else if (currentState == StateManager.GameOver)
         {
 
         }
@@ -78,32 +78,29 @@ public class GameState
     private void Draw() //Ritar ut spelet
     {
         Raylib.BeginDrawing();
-        if (sceneMan == StateManager.Start)
+        if (currentState == StateManager.Start)
         {
             Raylib.DrawText("scary game", screenWidth / 2, screenHeight / 2, 50, Color.ORANGE);
         }
 
-        else if (sceneMan == StateManager.Game)
+        else if (currentState == StateManager.Game)
         {
             Rectangle sourceRect = new Rectangle(player.DrawPlayer() * playerSprite.width / 6, 0, playerSprite.width / 6, playerSprite.height);
             Raylib.BeginMode2D(camera);
             Raylib.ClearBackground(Color.WHITE);
 
             caveGeneration.Draw();
-            //Raylib.DrawTexture(caveGeneration.perlinImage,0,0,Color.WHITE);
             Raylib.DrawTextureRec(playerSprite, sourceRect, player.playerPosition - new Vector2(player.playerRect.width / 2, player.playerRect.height / 2), Color.WHITE);
-
+        
             player.DrawBullets();
 
             Raylib.DrawTexturePro(cursorSprite, new Rectangle(0, 0, cursorSprite.width, cursorSprite.height), new Rectangle((int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).X, (int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).Y, cursorSprite.width, cursorSprite.height), new Vector2((int)cursorSprite.width / 2, (int)cursorSprite.height / 2), (int)RadiansToDegrees(), Color.WHITE);
-            //Raylib.DrawRectangle((int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).X, (int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).Y, 5, 5, Color.BLUE);
-
             Raylib.EndMode2D();
 
             Raylib.DrawFPS(20, 20);
 
         }
-        else if (sceneMan == StateManager.GameOver)
+        else if (currentState == StateManager.GameOver)
         {
 
         }
