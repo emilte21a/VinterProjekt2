@@ -5,7 +5,7 @@ public class GameState
 
     const int screenWidth = 850;
     const int screenHeight = 850;
-    Fighter player;
+    Player player;
 
     //Instanser
     CaveGeneration caveGeneration;
@@ -32,7 +32,7 @@ public class GameState
             zoom = 0.6f,
             offset = new Vector2(screenWidth / 2, screenHeight / 2)
         };
-        player = new Fighter() { camera = camera };
+        player = new Player() { camera = camera };
     }
     public void Run()
     {
@@ -60,10 +60,8 @@ public class GameState
 
         else if (currentState == StateManager.Game)
         {
+            player.ControlPlayerPosition(caveGeneration, 10);
 
-            player.playerRect.x = player.PlayerXmovement(player.playerRect.x, 10);
-            player.playerRect.y = player.PlayerYmovement(player.playerRect.y, 10);
-            player.ResetPosition(caveGeneration);
             CameraUpdate();
 
             camera.target = cameraSmoothing.Lerp(lastPosition, player.playerPosition, 1.4f);
@@ -93,7 +91,7 @@ public class GameState
 
             caveGeneration.Draw();
 
-            Raylib.DrawRectangleRec(player.playerRect,Color.ORANGE);
+            Raylib.DrawRectangleRec(player.playerRect, Color.ORANGE);
             // Raylib.DrawTextureRec(playerSprite, sourceRect, player.playerPosition - new Vector2(player.playerRect.width / 2, player.playerRect.height / 2), Color.WHITE);
 
             player.DrawBullets();

@@ -6,7 +6,7 @@ public class CaveGeneration
 
     private int worldSize = 50;
 
-    private int tileWidth = 50;
+    private int tileSize = 50;
 
     private int Seed;
 
@@ -43,12 +43,13 @@ public class CaveGeneration
         // }
 
         // Raylib.UnloadImage(noiseImage);
+        
         for (int x = 0; x < 6; x++)
         {
             for (int y = 0; y < 6; y++)
             {
 
-                PlaceTile(new Stone(), new Vector2((int)x * tileWidth, (int)y * tileWidth));
+                PlaceTile(new Stone(), new Vector2((int)x * tileSize, (int)y * tileSize));
             }
         }
 
