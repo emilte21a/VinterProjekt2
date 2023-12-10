@@ -11,7 +11,7 @@ public class Tile
             tileRect.y = value.Y;
         }
     }
-    public int tileSize = 50;
+    public int tileSize = 100;
     public Texture2D texture;
 }
 

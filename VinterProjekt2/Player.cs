@@ -5,7 +5,6 @@ using System.Security.Principal;
 using Microsoft.VisualBasic;
 using Raylib_cs;
 
-
 public class Player
 {
     public int hp;
@@ -14,7 +13,7 @@ public class Player
 
     public Vector2 playerPosition;
 
-    Texture2D playerSprite = Raylib.LoadTexture("Bilder/CharacterSpriteSheet.png");
+    public Texture2D playerSprite = Raylib.LoadTexture("Bilder/CharacterSpriteSheet.png");
 
     public Camera2D camera { get; init; }
 
@@ -81,10 +80,10 @@ public class Player
         else if (isKeyDownD && !isKeyDownW && !isKeyDownS && !isKeyDownA)
             return PlayerDirection.Right;
 
-        else if (isKeyDownW && !isKeyDownA && !isKeyDownD && !isKeyDownS)
+        else if ((!isKeyDownS && !isKeyDownA && !isKeyDownD && isKeyDownW) || (!isKeyDownS && isKeyDownA && isKeyDownD && isKeyDownW))
             return PlayerDirection.Up;
 
-        else if (isKeyDownS && !isKeyDownA && !isKeyDownD && !isKeyDownW)
+        else if ((isKeyDownS && !isKeyDownA && !isKeyDownD && !isKeyDownW) || (isKeyDownS && isKeyDownA && isKeyDownD && !isKeyDownW))
             return PlayerDirection.Down;
 
         else if (isKeyDownW && !isKeyDownA && isKeyDownD && !isKeyDownS)
@@ -146,88 +145,74 @@ public class Player
     }
 
     //[Kollisioner]==========================================================================
-    float intersectionWidth;
-    float intersectionHeight;
 
     public void CalculateCollisionSize(PlayerDirection _direction, Tile _collidingTile)
     {
+        var collisionRec = Raylib.GetCollisionRec(playerRect, _collidingTile.tileRect);
+
         switch (_direction)
         {
             case PlayerDirection.Right:
-                // intersectionHeight = 0;
-                // intersectionWidth = -1 * (Math.Min(playerRect.x + playerRect.width, _collidingTile.tileRect.x + _collidingTile.tileRect.width) - Math.Max(playerRect.x, _collidingTile.tileRect.x));
-
-                //intersectionWidth = Raylib.GetCollisionRec(playerRect, _collidingTile.tileRect).width;
-
-                if (playerRect.x + playerRect.width > _collidingTile.tileRect.x)
-                {
-                    // intersectionWidth = -1 * (int)Raylib.GetCollisionRec(playerRect, _collidingTile.tileRect).width;
-                    // intersectionHeight = 0;
-                    playerRect.x = _collidingTile.tileRect.x - playerRect.width;
-                }
+                playerRect.x -= (int)collisionRec.width;
 
                 break;
 
             case PlayerDirection.Left:
-                //intersectionHeight = 0;
-                //intersectionWidth = Math.Min(playerRect.x + playerRect.width, _collidingTile.tileRect.x + _collidingTile.tileRect.width) - Math.Max(playerRect.x, _collidingTile.tileRect.x);
-                //playerRect.x += Raylib.GetCollisionRec(playerRect, _collidingTile.tileRect).width;
-                if (playerRect.x < _collidingTile.tileRect.x + _collidingTile.tileRect.width)
-                {
-                    // intersectionWidth = (int)Raylib.GetCollisionRec(playerRect, _collidingTile.tileRect).width;
-                    // intersectionHeight = 0;
-                    playerRect.x = _collidingTile.tileRect.x + _collidingTile.tileRect.width;
-                }
+                playerRect.x += (int)collisionRec.width;
                 break;
 
             case PlayerDirection.Down:
-                //intersectionWidth = 0;
-                //intersectionHeight = -1 * (Math.Min(playerRect.y + playerRect.height, _collidingTile.tileRect.y + _collidingTile.tileRect.height) - Math.Max(playerRect.y, _collidingTile.tileRect.y));
-                // playerRect.y -= Raylib.GetCollisionRec(playerRect, _collidingTile.tileRect).height;
-                if (playerRect.y + playerRect.height > _collidingTile.tileRect.y)
-                {
-                    // intersectionHeight = -1 * (int)Raylib.GetCollisionRec(playerRect, _collidingTile.tileRect).height;
-                    // intersectionWidth = 0;
-                    playerRect.y = _collidingTile.tileRect.y - playerRect.height;
-                }
+                playerRect.y -= (int)collisionRec.height;
                 break;
 
             case PlayerDirection.Up:
-                //intersectionWidth = 0;
-                //intersectionHeight = Math.Min(playerRect.y + playerRect.height, _collidingTile.tileRect.y + _collidingTile.tileRect.height) - Math.Max(playerRect.y, _collidingTile.tileRect.y);
-                // playerRect.y += Raylib.GetCollisionRec(playerRect, _collidingTile.tileRect).height;
-                if (playerRect.y < _collidingTile.tileRect.y + _collidingTile.tileRect.height)
-                {
-                    // intersectionHeight = (int)Raylib.GetCollisionRec(playerRect, _collidingTile.tileRect).height;
-                    // intersectionWidth = 0;
-                    playerRect.y = _collidingTile.tileRect.y + _collidingTile.tileRect.height;
-                }
+                playerRect.y += (int)collisionRec.height;
                 break;
 
             case PlayerDirection.RightUp:
+                if ((int)collisionRec.height < (int)collisionRec.width)
+                    playerRect.y += (int)collisionRec.height;
+
+                else if ((int)collisionRec.height > (int)collisionRec.width)
+                    playerRect.x -= (int)collisionRec.width;
 
                 break;
 
             case PlayerDirection.RightDown:
-               
+                if ((int)collisionRec.height < (int)collisionRec.width)
+                    playerRect.y -= (int)collisionRec.height;
+
+                else if ((int)collisionRec.height > (int)collisionRec.width)
+                    playerRect.x -= (int)collisionRec.width;
+
                 break;
+
             case PlayerDirection.LeftUp:
-                
+                if ((int)collisionRec.height < (int)collisionRec.width)
+                    playerRect.y += (int)collisionRec.height;
+
+                else if ((int)collisionRec.height > (int)collisionRec.width)
+                    playerRect.x += (int)collisionRec.width;
+
                 break;
+
             case PlayerDirection.LeftDown:
-                
+                if ((int)collisionRec.height < (int)collisionRec.width)
+                    playerRect.y -= (int)collisionRec.height;
+
+                else if ((int)collisionRec.height > (int)collisionRec.width)
+                    playerRect.x += (int)collisionRec.width;
+
                 break;
 
+            case PlayerDirection.Idle:
+                
 
+                break;
         }
-        //System.Console.WriteLine(Raylib.GetCollisionRec(playerRect, _collidingTile.tileRect).width);
-        // playerRect.x += intersectionWidth;
-        // playerRect.y += intersectionHeight;
-
-
     }
 
-    private List<Tile> collidingTiles; //En lista med de Tiles som spelaren kolliderar med
+    public List<Tile> collidingTiles; //En lista med de Tiles som spelaren kolliderar med
 
     public List<Tile> CheckCollision(CaveGeneration cave)
     {
@@ -236,23 +221,20 @@ public class Player
 
     public void ControlPlayerPosition(CaveGeneration cave, float _speed)
     {
-        playerRect.x = MovePlayerX(playerRect.x, _speed);
-        playerRect.y = MovePlayerY(playerRect.y, _speed);
+
+        playerRect.x = (int)MovePlayerX(playerRect.x, _speed);
+        playerRect.y = (int)MovePlayerY(playerRect.y, _speed);
 
         collidingTiles = CheckCollision(cave);
 
+        PlayerDirection direction = GetPlayerDirection();
+
         foreach (var colTile in collidingTiles)
         {
-            //var collidingTile = cave.worldTiles.FirstOrDefault(worldTile => Raylib.CheckCollisionRecs(_playerRect, worldTile.tileRect));
-
             if (colTile != null)
             {
-                PlayerDirection direction = GetPlayerDirection();
                 CalculateCollisionSize(direction, colTile);
             }
         }
-
-
-        //System.Console.WriteLine("width:" + intersectionWidth + " height:" + intersectionHeight);
     }
 }

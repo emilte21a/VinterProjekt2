@@ -13,14 +13,12 @@ public class GameState
     CameraSmooth cameraSmoothing;
 
     Texture2D cursorSprite;
-    Texture2D playerSprite;
     Camera2D camera;
     public GameState() //Fungerar som en start funktion i unity.
     {
         Raylib.InitWindow(screenWidth, screenHeight, "scary");
 
         cursorSprite = Raylib.LoadTexture("Bilder/MouseCursor.png");
-        playerSprite = Raylib.LoadTexture("Bilder/CharacterSpriteSheet.png");
         Raylib.SetTargetFPS(60);
         currentState = StateManager.Start;
 
@@ -29,6 +27,7 @@ public class GameState
 
         camera = new()
         {
+            target = new Vector2(0, 0),
             zoom = 0.6f,
             offset = new Vector2(screenWidth / 2, screenHeight / 2)
         };
@@ -64,7 +63,7 @@ public class GameState
 
             CameraUpdate();
 
-            camera.target = cameraSmoothing.Lerp(lastPosition, player.playerPosition, 1.4f);
+            camera.target = cameraSmoothing.Lerp(camera.target, player.playerPosition, 0.1f);
             EnableCursor();
 
             player.Shoot(15);
@@ -85,13 +84,15 @@ public class GameState
 
         else if (currentState == StateManager.Game)
         {
-            Rectangle sourceRect = new Rectangle(player.DrawPlayer(6, 10) * playerSprite.width / 6, 0, playerSprite.width / 6, playerSprite.height);
+            Rectangle sourceRect = new Rectangle(player.DrawPlayer(6, 10) * player.playerSprite.width / 6, 0, player.playerSprite.width / 6, player.playerSprite.height);
             Raylib.BeginMode2D(camera);
             Raylib.ClearBackground(Color.WHITE);
 
             caveGeneration.Draw();
 
             Raylib.DrawRectangleRec(player.playerRect, Color.ORANGE);
+
+
             // Raylib.DrawTextureRec(playerSprite, sourceRect, player.playerPosition - new Vector2(player.playerRect.width / 2, player.playerRect.height / 2), Color.WHITE);
 
             player.DrawBullets();
@@ -120,7 +121,7 @@ public class GameState
     private double RadiansToDegrees()
     {
         Vector2 mousePosition = Raylib.GetMousePosition() - camera.offset;
-        Vector2 pos = new Vector2(player.playerRect.x + playerSprite.width / 6, player.playerRect.y + playerSprite.height / 2);
+        Vector2 pos = new Vector2(player.playerRect.x + player.playerSprite.width / 6, player.playerRect.y + player.playerSprite.height / 2);
         Vector2 diff = mousePosition - pos;
         Vector2 cursorDirection = Vector2.Normalize(diff + pos);
         double radians = Math.Atan2(cursorDirection.Y, cursorDirection.X);

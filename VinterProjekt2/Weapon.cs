@@ -27,9 +27,9 @@ public class Bullet
         bulletRec.y = position.Y;
     }
 
-    public bool ShouldDestroy(Rectangle playerRect)
+    public bool ShouldDestroy(Rectangle _playerRect)
     {
-        if (bulletRec.x < playerRect.x - 100 || bulletRec.x > playerRect.x + 100 || bulletRec.y < playerRect.y - 100 || bulletRec.y > playerRect.y + 100)
+        if (bulletRec.x < _playerRect.x - 100 || bulletRec.x > _playerRect.x + 100 || bulletRec.y < _playerRect.y - 100 || bulletRec.y > _playerRect.y + 100)
             return true;
 
         else
