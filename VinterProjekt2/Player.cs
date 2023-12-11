@@ -133,7 +133,7 @@ public class Player
 
     int frame { get; set; }
     float elapsed = 0;
-    public int DrawPlayer(int _maxFrames, int _timePerFrame)
+    public int DrawPlayer(int _maxFrames, float _timePerFrame)
     {
         elapsed += Raylib.GetFrameTime();
         if (elapsed > _timePerFrame)

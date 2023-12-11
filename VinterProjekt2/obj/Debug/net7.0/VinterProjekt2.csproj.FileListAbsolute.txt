@@ -23,3 +23,5 @@ C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\obj\Debug\net7.0\ref\V
 c:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\MouseCursor.png
 C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\CharacterSpriteSheet.png
 C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\Stone.png
+C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\Bakgrund.png
+C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\Core.png

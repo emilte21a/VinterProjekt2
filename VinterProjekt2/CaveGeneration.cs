@@ -2,9 +2,9 @@ using Raylib_cs;
 using System.Numerics;
 public class CaveGeneration
 {
-    private float surfaceValue = 121f;
+    private float surfaceValue = 146f; //Desto högre talet är, desto mindre block genereras
 
-    private int worldSize = 100;
+    public readonly int worldSize = 100;
 
     private int tileSize = 100;
 
@@ -16,8 +16,6 @@ public class CaveGeneration
 
     public Texture2D perlinImage;
     public List<Tile> worldTiles = new();
-
-    //Instanser av tiles
 
     public CaveGeneration()
     {
@@ -43,16 +41,6 @@ public class CaveGeneration
         }
 
         Raylib.UnloadImage(noiseImage);
-        
-        // for (int x = 0; x < 5; x++)
-        // {
-        //     for (int y = 0; y < 5; y++)
-        //     {
-
-        //         PlaceTile(new Stone(), new Vector2((int)x * tileSize, (int)y * tileSize));
-        //     }
-        // }
-
     }
 
     private void PlaceTile(Tile _tile, Vector2 _position)
@@ -65,9 +53,7 @@ public class CaveGeneration
     {
         for (int i = 0; i < worldTiles.Count; i++)
         {
-            //Raylib.DrawTexture(worldTiles[i].texture, (int)worldTiles[i].Pos.X, (int)worldTiles[i].Pos.Y, Color.WHITE);
-            Raylib.DrawRectangleRec(worldTiles[i].tileRect,Color.BLACK);
+            Raylib.DrawTexture(worldTiles[i].texture, (int)worldTiles[i].Pos.X, (int)worldTiles[i].Pos.Y, Color.WHITE);
         }
-
     }
 }
