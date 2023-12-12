@@ -3,8 +3,8 @@ using System.Numerics;
 public class GameState
 {
 
-    const int screenWidth = 720;
-    const int screenHeight = 720;
+    const int screenWidth = 1080;
+    const int screenHeight = 1080;
 
 
     //Instanser
@@ -12,7 +12,8 @@ public class GameState
     Saucer saucer;
     CaveGeneration caveGeneration;
     StateManager currentState;
-    CameraSmooth cameraSmoothing;
+    UniversalMath uMath;
+    GUI gUI;
 
     Texture2D cursorSprite;
     Texture2D backgroundTexture;
@@ -29,7 +30,8 @@ public class GameState
         currentState = StateManager.Start;
 
         caveGeneration = new();
-        cameraSmoothing = new();
+        uMath = new();
+        gUI = new();
 
         camera = new()
         {
@@ -69,7 +71,7 @@ public class GameState
             case StateManager.Game:
                 player.ControlPlayerPosition(caveGeneration, 10);
                 CameraUpdate();
-                saucer.Update(player.playerRect);
+                saucer.Update(player.playerPosition);
                 EnableCursor();
                 player.Shoot(15);
                 break;
@@ -92,8 +94,8 @@ public class GameState
                 Raylib.ClearBackground(Color.WHITE);
                 Raylib.DrawTexture(backgroundTexture, 0, 0, Color.WHITE);
                 Raylib.BeginMode2D(camera);
-                Raylib.DrawTexture(coreTexture, caveGeneration.worldSize * 100 / 2 - coreTexture.width / 2, caveGeneration.worldSize * 100 / 2 - coreTexture.height / 2, Color.WHITE);
                 caveGeneration.Draw();
+                //Raylib.DrawTexture(coreTexture, caveGeneration.worldSize * 100 / 2 - coreTexture.width / 2, caveGeneration.worldSize * 100 / 2 - coreTexture.height / 2, Color.WHITE);
                 saucer.Draw();
                 Raylib.DrawTextureRec(player.playerSprite, new Rectangle(player.DrawPlayer(6, 0.3f) * player.playerSprite.width / 6, 0, player.playerSprite.width / 6, player.playerSprite.height), player.playerPosition - new Vector2(player.playerRect.width / 2, player.playerRect.height / 2), Color.WHITE);
 
@@ -101,8 +103,7 @@ public class GameState
 
                 Raylib.DrawTexturePro(cursorSprite, new Rectangle(0, 0, cursorSprite.width, cursorSprite.height), new Rectangle((int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).X, (int)(Raylib.GetMousePosition() - camera.offset + player.playerPosition).Y, cursorSprite.width, cursorSprite.height), new Vector2((int)cursorSprite.width / 2, (int)cursorSprite.height / 2), (int)RadiansToDegrees(), Color.WHITE);
                 Raylib.EndMode2D();
-                Raylib.DrawText($"{player.playerPosition}", 20, 40, 20, Color.LIME);
-                Raylib.DrawFPS(20, 20);
+                gUI.DrawGUI(player, saucer);
                 break;
         }
         Raylib.EndDrawing();
@@ -112,7 +113,7 @@ public class GameState
     {
         player.playerPosition.X = player.playerRect.x + player.playerRect.width / 2;
         player.playerPosition.Y = player.playerRect.y + player.playerRect.height / 2;
-        camera.target = cameraSmoothing.Lerp(camera.target, player.playerPosition, 0.15f);
+        camera.target = uMath.Lerp(camera.target, player.playerPosition, 0.1f);
     }
 
     private double RadiansToDegrees()

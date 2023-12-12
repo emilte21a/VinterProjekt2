@@ -17,8 +17,8 @@ public class Tile
 
 public class Stone : Tile
 {
-    
     Texture2D stoneTexture = Raylib.LoadTexture("Bilder/Stone.png");
+
     public Stone()
     {
         tileRect = new Rectangle(0, 0, tileSize, tileSize);

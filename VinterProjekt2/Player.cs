@@ -19,7 +19,7 @@ public class Player
 
     public Player()
     {
-        hp = 100;
+        hp = 4;
         playerRect = new Rectangle(-50, 0, playerSprite.width / 6, playerSprite.height);
     }
 
