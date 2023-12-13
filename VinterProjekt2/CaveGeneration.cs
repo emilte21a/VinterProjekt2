@@ -19,10 +19,13 @@ public class CaveGeneration
     public List<Tile> worldTiles = new();
     private List<Vector2> backgroundTiles = new();
 
+    public int[,] tileGrid;
+
     public CaveGeneration()
     {
         Seed = Random.Shared.Next(-1000, 1000);
         stoneWallpaper = Raylib.LoadTexture("Bilder/StoneWallpaper.png");
+        tileGrid = new int[worldSize, worldSize];
     }
 
     private Texture2D stoneWallpaper;
@@ -31,8 +34,6 @@ public class CaveGeneration
     {
         noiseImage = Raylib.GenImagePerlinNoise(worldSize, worldSize, Seed, Seed, 10);
         perlinImage = Raylib.LoadTextureFromImage(noiseImage);
-
-
 
         for (int x = 0; x < worldSize; x++)
         {
@@ -45,7 +46,6 @@ public class CaveGeneration
                 else if (alpha.r < surfaceValue && alpha.r > 80)
                     PlaceBackground(new Vector2((int)x * tileSize, (int)y * tileSize));
 
-
             }
         }
 
@@ -56,6 +56,7 @@ public class CaveGeneration
     {
         _tile.Pos = _position;
         worldTiles.Add(_tile);
+        tileGrid[(int)_position.X / tileSize, (int)_position.Y / tileSize] = 1;
     }
 
     private void PlaceBackground(Vector2 _position)
@@ -63,16 +64,18 @@ public class CaveGeneration
         backgroundTiles.Add(_position);
     }
 
+    public List<Tile> TileToDestroy(CaveGeneration cave, Rectangle bulletRec)
+    {
+        return cave.worldTiles.Where(worldTile => Raylib.CheckCollisionRecs(bulletRec, worldTile.tileRect)).ToList();
+    }
+
     public void Draw()
     {
         for (int i = 0; i < worldTiles.Count; i++)
-        {
             Raylib.DrawTexture(worldTiles[i].texture, (int)worldTiles[i].Pos.X, (int)worldTiles[i].Pos.Y, Color.WHITE);
-        }
+
         for (int i = 0; i < backgroundTiles.Count; i++)
-        {
             Raylib.DrawTexture(stoneWallpaper, (int)backgroundTiles[i].X, (int)backgroundTiles[i].Y, Color.WHITE);
 
-        }
     }
 }

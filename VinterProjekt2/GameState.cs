@@ -14,6 +14,7 @@ public class GameState
     StateManager currentState;
     UniversalMath uMath;
     GUI gUI;
+    Collectible collectible;
 
     Texture2D cursorSprite;
     Texture2D backgroundTexture;
@@ -32,6 +33,8 @@ public class GameState
         caveGeneration = new();
         uMath = new();
         gUI = new();
+        collectible = new();
+
 
         camera = new()
         {
@@ -63,6 +66,8 @@ public class GameState
                 {
                     currentState = StateManager.Game;
                     caveGeneration.GenerateTerrain();
+                    collectible.GenerateCollectibles(caveGeneration);
+                    saucer.GenerateEnemies(caveGeneration);
                     Raylib.HideCursor();
                     Raylib.DisableCursor();
                 }
@@ -71,14 +76,12 @@ public class GameState
             case StateManager.Game:
                 player.ControlPlayerPosition(caveGeneration, 10);
                 CameraUpdate();
-                saucer.Update(player.playerPosition);
+                saucer.Update(player.playerPosition, caveGeneration, player);
                 EnableCursor();
-                player.Shoot(15);
+                player.Shoot(15, caveGeneration);
                 break;
         }
     }
-
-
 
     private void Draw() //Ritar ut spelet
     {
@@ -95,6 +98,7 @@ public class GameState
                 Raylib.DrawTexture(backgroundTexture, 0, 0, Color.WHITE);
                 Raylib.BeginMode2D(camera);
                 caveGeneration.Draw();
+                collectible.DrawCollectibles();
                 //Raylib.DrawTexture(coreTexture, caveGeneration.worldSize * 100 / 2 - coreTexture.width / 2, caveGeneration.worldSize * 100 / 2 - coreTexture.height / 2, Color.WHITE);
                 saucer.Draw();
                 Raylib.DrawTextureRec(player.playerSprite, new Rectangle(player.DrawPlayer(6, 0.3f) * player.playerSprite.width / 6, 0, player.playerSprite.width / 6, player.playerSprite.height), player.playerPosition - new Vector2(player.playerRect.width / 2, player.playerRect.height / 2), Color.WHITE);

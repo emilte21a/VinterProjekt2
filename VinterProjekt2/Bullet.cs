@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 public class Bullet
 {
     float speed;
-    Rectangle bulletRec;
+    public Rectangle bulletRec;
 
     Vector2 direction;
 
@@ -17,7 +17,6 @@ public class Bullet
         this.direction = _direction;
         this.speed = _speed;
         bulletRec = new Rectangle(position.X, position.Y, 5, 5);
-
     }
 
     public void Update()
@@ -27,13 +26,24 @@ public class Bullet
         bulletRec.y = position.Y;
     }
 
-    public bool ShouldDestroy(Rectangle _playerRect)
+    public List<Tile> collidingTiles;
+
+    public bool ShouldDestroy(Rectangle _playerRect, CaveGeneration cave)
     {
-        if (bulletRec.x < _playerRect.x - 100 || bulletRec.x > _playerRect.x + 100 || bulletRec.y < _playerRect.y - 100 || bulletRec.y > _playerRect.y + 100)
+        collidingTiles = cave.TileToDestroy(cave, bulletRec);
+
+        if (collidingTiles.Count > 0)
+        {
+            foreach (var colTile in collidingTiles)
+                cave.worldTiles.Remove(colTile);
+            
+            return true;
+        }
+
+        else if (bulletRec.x < _playerRect.x - 1080 || bulletRec.x > _playerRect.x + 1080 || bulletRec.y < _playerRect.y - 1080 || bulletRec.y > _playerRect.y + 1080)
             return true;
 
-        else
-            return false;
+        return false;
     }
 
     public void Draw()

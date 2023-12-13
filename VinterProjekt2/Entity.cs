@@ -34,8 +34,89 @@ public class Entity
 
     }
 
-    public virtual void SpawnEntity(CaveGeneration cave)
+    public virtual void SpawnEntity(Saucer _saucer, Vector2 _position)
     {
+
+    }
+
+    public enum EnemyDirection
+    {
+        RightUp,
+        RightDown,
+        LeftUp,
+        LeftDown,
+        Idle
+    }
+
+    public EnemyDirection GetEnemyDirection(Vector2 _playerPos)
+    {
+        Vector2 diff = position - _playerPos;
+        Vector2 direction = Vector2.Normalize(diff);
+        double radians = Math.Atan2(direction.Y, direction.X);
+
+        radians *= (180 / Math.PI);
+        //System.Console.WriteLine(radians);
+
+        if (radians > 90)
+            return EnemyDirection.RightUp;
+
+        else if (radians < 90 && radians > 0)
+            return EnemyDirection.LeftUp;
+
+        else if (radians < 0 && radians > -90)
+            return EnemyDirection.LeftDown;
+
+        else if (radians < -90)
+            return EnemyDirection.RightDown;
+
+        else
+            return EnemyDirection.Idle;
+    }
+
+    public void CalculateCollisionSize(EnemyDirection _direction, Tile _collidingTile)
+    {
+
+        Rectangle collisionRec = Raylib.GetCollisionRec(entityRect, _collidingTile.tileRect);
+
+
+        switch (_direction)
+        {
+            case EnemyDirection.RightUp:
+                if ((int)collisionRec.height < (int)collisionRec.width)
+                    entityRect.y += (int)collisionRec.height;
+
+                else if ((int)collisionRec.height > (int)collisionRec.width)
+                    entityRect.x -= (int)collisionRec.width;
+
+                break;
+
+            case EnemyDirection.RightDown:
+                if ((int)collisionRec.height < (int)collisionRec.width)
+                    entityRect.y -= (int)collisionRec.height;
+
+                else if ((int)collisionRec.height > (int)collisionRec.width)
+                    entityRect.x -= (int)collisionRec.width;
+
+                break;
+
+            case EnemyDirection.LeftUp:
+                if ((int)collisionRec.height < (int)collisionRec.width)
+                    entityRect.y += (int)collisionRec.height;
+
+                else if ((int)collisionRec.height > (int)collisionRec.width)
+                    entityRect.x += (int)collisionRec.width;
+
+                break;
+
+            case EnemyDirection.LeftDown:
+                if ((int)collisionRec.height < (int)collisionRec.width)
+                    entityRect.y -= (int)collisionRec.height;
+
+                else if ((int)collisionRec.height > (int)collisionRec.width)
+                    entityRect.x += (int)collisionRec.width;
+
+                break;
+        }
 
     }
 }
@@ -43,8 +124,11 @@ public class Entity
 public class Saucer : Entity
 {
     UniversalMath uMath = new();
-    Entity entity = new();
+    int amountOfSaucers = 40;
     bool isActive;
+
+    List<Saucer> saucers = new();
+
     public Saucer()
     {
         Hp = 4;
@@ -53,20 +137,32 @@ public class Saucer : Entity
         isActive = true;
     }
 
-    public void Update(Vector2 _playerPos)
+    public List<Tile> CheckCollision(CaveGeneration cave, Saucer _saucer)
     {
+        return cave.worldTiles.Where(worldTile => Raylib.CheckCollisionRecs(_saucer.entityRect, worldTile.tileRect)).ToList(); //Returnerar en lista med de Tiles som fienden kolliderar med
+    }
 
-        if (uMath.Distance(position, _playerPos) < 500)
-            isActive = true;
+    List<Tile> collidingTiles;
 
-        else if (uMath.Distance(position, _playerPos) > 700)
-            isActive = false;
+    public void Update(Vector2 _playerPos, CaveGeneration cave, Player _player)
+    {
+        foreach (var saucer in saucers)
+        {
+            if (uMath.Distance(saucer.position, _playerPos) < 500)
+                isActive = true;
 
-        if (isActive)
-            EnemyMovement(_playerPos);
+            else if (uMath.Distance(saucer.position, _playerPos) > 700)
+                isActive = false;
 
-        else
-            position = uMath.Lerp(position, position * 0.95f, 0.008f);
+            if (isActive)
+                EnemyMovement(_playerPos, cave, saucer);
+
+            else
+                saucer.position = saucer.position;
+
+            if (Raylib.CheckCollisionRecs(entityRect, _player.playerRect))
+                _player.hp -= Attack(1);
+        }
     }
 
     public override int Attack(int _damage)
@@ -74,32 +170,47 @@ public class Saucer : Entity
         return _damage;
     }
 
-    private void EnemyMovement(Vector2 _playerPos)
+    EnemyDirection direction;
+
+    private void EnemyMovement(Vector2 _playerPos, CaveGeneration cave, Saucer _saucer)
     {
-        position = uMath.Lerp(position, _playerPos, 0.01f);
+        _saucer.position = uMath.Lerp(_saucer.position, _playerPos, 0.01f);
+
+        collidingTiles = CheckCollision(cave, _saucer);
+
+        direction = GetEnemyDirection(_playerPos);
+
+        foreach (var colTile in collidingTiles)
+        {
+            if (colTile != null)
+                CalculateCollisionSize(direction, colTile);
+        }
+    }
+
+    public void GenerateEnemies(CaveGeneration cave)
+    {
+        for (int x = 0; x < cave.tileGrid.GetLength(0); x++)
+        {
+            for (int y = 0; y < cave.tileGrid.GetLength(1); y++)
+            {
+                if (cave.tileGrid[x, y] == 0 && Random.Shared.Next(0, cave.worldSize * cave.worldSize) < 40 && saucers.Count < amountOfSaucers)
+                    SpawnEntity(new Saucer(), new Vector2((int)x * cave.worldSize, (int)y * cave.worldSize));
+                
+            }
+        }
+    }
+
+    public override void SpawnEntity(Saucer _saucer, Vector2 _position)
+    {
+        _saucer.position = _position;
+        saucers.Add(_saucer);
     }
 
     public override void Draw()
     {
-        Raylib.DrawRectangleRec(entityRect, Color.BLUE);
-    }
+        for (int i = 0; i < saucers.Count; i++)
+            Raylib.DrawRectangleRec(saucers[i].entityRect, Color.BLUE);
 
-    public override void SpawnEntity(CaveGeneration cave)
-    {
-        
-
-    }
-
-    private int AvailableSpawns(CaveGeneration cave)
-    {
-        for (int X = 0; X < cave.worldTiles.Count; X++)
-        {
-            for (int Y = 0; Y < cave.worldTiles.Count; Y++)
-            {
-                return 1;
-            }
-        }
-        return 2;
     }
 }
 

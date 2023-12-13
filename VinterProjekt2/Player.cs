@@ -9,6 +9,8 @@ public class Player
 {
     public int hp;
 
+    public int amountOfCollectibles = 0;
+
     public Rectangle playerRect;
 
     public Vector2 playerPosition;
@@ -68,7 +70,6 @@ public class Player
 
     public PlayerDirection GetPlayerDirection()
     {
-
         bool isKeyDownA = Raylib.IsKeyDown(KeyboardKey.KEY_A);
         bool isKeyDownD = Raylib.IsKeyDown(KeyboardKey.KEY_D);
         bool isKeyDownW = Raylib.IsKeyDown(KeyboardKey.KEY_W);
@@ -105,7 +106,7 @@ public class Player
     List<Bullet> bullets = new();
     List<Bullet> bulletsToDestroy = new();
 
-    public void Shoot(float _speed)
+    public void Shoot(float _speed, CaveGeneration cave)
     {
         Vector2 mousePosition = Raylib.GetMousePosition() - camera.offset;
         Vector2 pos = new Vector2(playerRect.x, playerRect.y);
@@ -115,20 +116,29 @@ public class Player
         if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
             bullets.Add(new Bullet(new Vector2(playerRect.x + playerRect.width / 2, playerRect.y + playerRect.height / 2), bulletDirection, _speed));
 
-        foreach (var bullet in bullets)
+        foreach (var bullet in bullets.ToList())
         {
             bullet.Update();
-            if (bullet.ShouldDestroy(playerRect))
+
+            if (bullet.ShouldDestroy(playerRect, cave))
             {
-                bullets.RemoveAll(bullet => bulletsToDestroy.Contains(bullet));
-                bulletsToDestroy.Clear();
+                bulletsToDestroy.Add(bullet);
             }
         }
+
+        foreach (var bullet in bulletsToDestroy)
+        {
+            bullets.Remove(bullet);
+        }
+
+        bulletsToDestroy.Clear();
     }
     public void DrawBullets()
     {
         foreach (var bullet in bullets)
             bullet.Draw();
+
+        System.Console.WriteLine(bullets.Count);
     }
 
     int frame { get; set; }
@@ -206,7 +216,7 @@ public class Player
                 break;
 
             case PlayerDirection.Idle:
-                
+
 
                 break;
         }
@@ -237,4 +247,6 @@ public class Player
             }
         }
     }
+
+    public void 
 }

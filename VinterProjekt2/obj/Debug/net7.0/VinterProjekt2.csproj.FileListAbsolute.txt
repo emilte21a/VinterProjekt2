@@ -27,3 +27,5 @@ C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilde
 C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\Core.png
 C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\HP.png
 C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\StoneWallpaper.png
+C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\Battery.png
+C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\Fueltank.png
