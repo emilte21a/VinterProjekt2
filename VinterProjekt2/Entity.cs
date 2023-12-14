@@ -24,9 +24,9 @@ public class Entity
 
     public readonly int size = 50;
 
-    public virtual void Attack(int _damage, Player _player)
+    public virtual int Attack(int _damage)
     {
-
+        return 0;
     }
 
     public virtual void Draw()
@@ -119,20 +119,19 @@ public class Saucer : Entity
 {
     UniversalMath uMath = new();
     int amountOfSaucers = 40;
-    bool isActive;
+    bool isWithinRangeOfPlayer;
 
     List<Saucer> saucers = new();
 
     System.Timers.Timer timer;
 
-    public Saucer(Player player)
+    public Saucer()
     {
         Hp = 4;
         entityRect = new Rectangle(0, 0, size, size);
         position = new Vector2(-100, 0);
-        isActive = true;
+        isWithinRangeOfPlayer = true;
         timer = new(interval: 1000);
-        timer.Elapsed += (sender, e) => Attack(1, player);
     }
 
     public List<Tile> CheckCollision(CaveGeneration cave, Saucer saucer)
@@ -142,40 +141,42 @@ public class Saucer : Entity
 
     List<Tile> collidingTiles;
 
+    private bool isTimerActive = false;
+    private int damageTimer = 1;
     public void Update(Vector2 _playerPos, CaveGeneration cave, Player _player)
     {
+        System.Console.WriteLine(_player.hp);
+
         foreach (var saucer in saucers)
         {
             if (uMath.Distance(saucer.position, _playerPos) < 800)
-                isActive = true;
+                isWithinRangeOfPlayer = true;
 
             else if (uMath.Distance(saucer.position, _playerPos) > 1000)
-                isActive = false;
+                isWithinRangeOfPlayer = false;
 
-            if (isActive)
-                EnemyMovement(_playerPos, cave, saucer);
-
-            else
-                saucer.position = uMath.Lerp(saucer.position, saucer.position, 0.05f); // Om fienden inte är aktiv så ska den stanna.
-
-            if (Raylib.CheckCollisionRecs(saucer.entityRect, _player.playerRect))
-            {
-                if (!timer.Enabled) //Kolla om timern inte är igång
-                    timer.Start();//Starta timern
-            }
+            if (isWithinRangeOfPlayer)
+                EnemyMovement(_playerPos, cave, saucer, _player);
 
             else
-                timer.Stop();
+                saucer.position = uMath.Lerp(saucer.position, saucer.position, 1.5f); // Om fienden inte är aktiv så ska den stanna.
 
+
+            // timer.Elapsed += (sender, e) => _player.Damage(Attack(1));
+            // if (!timer.Enabled) //Kolla om timern inte är igång
+            //     timer.Start();//Starta timern
+
+
+            // timer.Stop();
         }
     }
 
-    public override void Attack(int _damage, Player _player)
+    public override int Attack(int _damage)
     {
-        _player.hp -= _damage;
+        return _damage;
     }
 
-    private void EnemyMovement(Vector2 _playerPos, CaveGeneration cave, Saucer saucer)
+    private void EnemyMovement(Vector2 _playerPos, CaveGeneration cave, Saucer saucer, Player _player)
     {
         saucer.position = uMath.Lerp(saucer.position, _playerPos, 0.01f);
 
@@ -183,10 +184,32 @@ public class Saucer : Entity
 
         EnemyDirection direction = GetEnemyDirection(_playerPos, saucer);
 
+
+
         foreach (var colTile in collidingTiles)
         {
             if (colTile != null)
                 CalculateCollisionSize(direction, colTile, saucer);
+        }
+
+        if (cave.worldTiles.Where(worldTile => Raylib.CheckCollisionRecs(saucer.entityRect, _player.playerRect)).ToList().Count > 0)
+            isTimerActive = true;
+
+        else
+        {
+            isTimerActive = false;
+            damageTimer = 60;
+        }
+    
+
+        if (isTimerActive)
+        {
+            damageTimer--;
+            if (damageTimer <= 0)
+            {
+                _player.Damage(Attack(1));
+                damageTimer = 60;
+            }
         }
     }
 
@@ -197,7 +220,7 @@ public class Saucer : Entity
             for (int y = 0; y < cave.tileGrid.GetLength(1); y++)
             {
                 if (cave.tileGrid[x, y] == 0 && Random.Shared.Next(0, cave.worldSize * cave.worldSize) < 40 && saucers.Count < amountOfSaucers)
-                    SpawnEntity(new Saucer(_player), new Vector2((int)x * cave.worldSize, (int)y * cave.worldSize));
+                    SpawnEntity(new Saucer(), new Vector2((int)x * cave.worldSize, (int)y * cave.worldSize));
             }
         }
     }

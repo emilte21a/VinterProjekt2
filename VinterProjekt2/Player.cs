@@ -152,6 +152,11 @@ public class Player
         return frame %= _maxFrames;
     }
 
+    public void Damage(int _damage)
+    {
+        hp -= _damage;
+    }
+
     //[Kollisioner]==========================================================================
 
     public void CalculateCollisionSize(PlayerDirection _direction, Tile _collidingTile)

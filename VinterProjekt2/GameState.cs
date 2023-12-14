@@ -44,7 +44,7 @@ public class GameState
         };
         player = new Player() { camera = camera };
 
-        saucer = new Saucer(player);
+        saucer = new Saucer();
     }
     public void Run()
     {
@@ -79,12 +79,12 @@ public class GameState
                 CameraUpdate();
                 EnableCursor();
                 player.Shoot(15, caveGeneration);
-                if (player.points == 10)
+                if (player.points == 10 || player.hp == 0)
                     currentState = StateManager.GameOver;
                 break;
         }
     }
-
+    int scrolling = 1;
     private void Draw() //Ritar ut spelet
     {
         Raylib.BeginDrawing();
@@ -92,12 +92,14 @@ public class GameState
         switch (currentState)
         {
             case StateManager.Start:
+                scrolling++;
+                Raylib.DrawTextureRec(backgroundTexture, new Rectangle(scrolling*0.2f, scrolling*0.7f, backgroundTexture.width, backgroundTexture.height), new Vector2(0, 0), Color.WHITE);
                 Raylib.DrawText("Evader", 40, 40, 50, Color.ORANGE);
-                Raylib.DrawText("Instructions", 40, 150, 30, Color.ORANGE);
-                Raylib.DrawText("- Shoot blocks to break them", 40, 200, 25, Color.ORANGE);
-                Raylib.DrawText("- Evade the saucers patrolling the planet", 40, 250, 25, Color.ORANGE);
-                Raylib.DrawText("- Gather 10 points by picking up the collectibles scattered throughout the map", 40, 300, 25, Color.ORANGE);
-                Raylib.DrawText("Press F to start!", screenWidth/4, screenHeight/2, 50, Color.ORANGE);
+                Raylib.DrawText("Instructions", 40, 150, 30, Color.WHITE);
+                Raylib.DrawText("- Shoot blocks to break them", 40, 200, 25, Color.WHITE);
+                Raylib.DrawText("- Evade the saucers patrolling the planet", 40, 250, 25, Color.WHITE);
+                Raylib.DrawText("- Gather 10 points by picking up the collectibles scattered throughout the map", 40, 300, 25, Color.WHITE);
+                Raylib.DrawText("Press F to start!", screenWidth / 4, screenHeight / 2, 50, Color.WHITE);
                 break;
 
             case StateManager.Game:
@@ -122,7 +124,7 @@ public class GameState
                 if (player.points == 10)
                     Raylib.DrawText("You won!", screenWidth / 2, screenHeight / 2, 60, Color.BLUE);
                 else if (player.hp == 0)
-                    Raylib.DrawText("You lost..", 50, 10, 50, Color.RED);
+                    Raylib.DrawText("You lost..", screenWidth / 2, screenHeight / 2, 60, Color.RED);
                 break;
         }
 

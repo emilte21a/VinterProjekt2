@@ -45,7 +45,6 @@ public class CaveGeneration
 
                 else if (alpha.r < surfaceValue && alpha.r > 80)
                     PlaceBackground(new Vector2((int)x * tileSize, (int)y * tileSize));
-
             }
         }
 
