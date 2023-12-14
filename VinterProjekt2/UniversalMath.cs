@@ -15,6 +15,4 @@ public class UniversalMath
 
         return Vector2.Distance(_to, _from);
     }
-
-
 }

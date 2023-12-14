@@ -9,7 +9,7 @@ public class Player
 {
     public int hp;
 
-    public int amountOfCollectibles = 0;
+    public float points = 0;
 
     public Rectangle playerRect;
 
@@ -137,8 +137,6 @@ public class Player
     {
         foreach (var bullet in bullets)
             bullet.Draw();
-
-        System.Console.WriteLine(bullets.Count);
     }
 
     int frame { get; set; }
@@ -224,18 +222,31 @@ public class Player
 
     public List<Tile> collidingTiles; //En lista med de Tiles som spelaren kolliderar med
 
-    public List<Tile> CheckCollision(CaveGeneration cave)
+    public List<Tile> CheckCollisionsWithTiles(CaveGeneration cave)
     {
         return cave.worldTiles.Where(worldTile => Raylib.CheckCollisionRecs(playerRect, worldTile.tileRect)).ToList(); //Returnerar en lista med de Tiles som spelaren kolliderar med
     }
-
-    public void ControlPlayerPosition(CaveGeneration cave, float _speed)
+    public List<Collectible> CheckCollisionsWithCollectibles(Collectible collectible)
     {
+        return collectible.collectibles.Where(collectible => Raylib.CheckCollisionRecs(playerRect, collectible.collectibleRec)).ToList(); //Returnerar en lista med de Tiles som spelaren kolliderar med
+    }
+
+    public void Update(CaveGeneration cave, float _speed, Collectible collectible)
+    {
+        collectible.collectiblesToDestroy = CheckCollisionsWithCollectibles(collectible);
+
+        foreach (var collect in collectible.collectiblesToDestroy)
+        {
+            collectible.collectibles.Remove(collect);
+            points += 1;
+        }
+
+        bulletsToDestroy.Clear();
 
         playerRect.x = (int)MovePlayerX(playerRect.x, _speed);
         playerRect.y = (int)MovePlayerY(playerRect.y, _speed);
 
-        collidingTiles = CheckCollision(cave);
+        collidingTiles = CheckCollisionsWithTiles(cave);
 
         PlayerDirection direction = GetPlayerDirection();
 
@@ -247,6 +258,4 @@ public class Player
             }
         }
     }
-
-    public void 
 }

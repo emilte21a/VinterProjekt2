@@ -55,7 +55,6 @@ public class Entity
         double radians = Math.Atan2(direction.Y, direction.X);
 
         radians *= (180 / Math.PI);
-        //System.Console.WriteLine(radians);
 
         if (radians > 90)
             return EnemyDirection.RightUp;
@@ -75,9 +74,7 @@ public class Entity
 
     public void CalculateCollisionSize(EnemyDirection _direction, Tile _collidingTile)
     {
-
         Rectangle collisionRec = Raylib.GetCollisionRec(entityRect, _collidingTile.tileRect);
-
 
         switch (_direction)
         {
@@ -105,7 +102,6 @@ public class Entity
 
                 else if ((int)collisionRec.height > (int)collisionRec.width)
                     entityRect.x += (int)collisionRec.width;
-
                 break;
 
             case EnemyDirection.LeftDown:
@@ -114,10 +110,8 @@ public class Entity
 
                 else if ((int)collisionRec.height > (int)collisionRec.width)
                     entityRect.x += (int)collisionRec.width;
-
                 break;
         }
-
     }
 }
 
@@ -129,17 +123,21 @@ public class Saucer : Entity
 
     List<Saucer> saucers = new();
 
+    System.Timers.Timer timer;
+
     public Saucer()
     {
         Hp = 4;
         entityRect = new Rectangle(0, 0, size, size);
         position = new Vector2(-100, 0);
         isActive = true;
+        timer = new(interval: 1000);
+        timer.Elapsed += (sender, e) => Attack(1);
     }
 
-    public List<Tile> CheckCollision(CaveGeneration cave, Saucer _saucer)
+    public List<Tile> CheckCollision(CaveGeneration cave)
     {
-        return cave.worldTiles.Where(worldTile => Raylib.CheckCollisionRecs(_saucer.entityRect, worldTile.tileRect)).ToList(); //Returnerar en lista med de Tiles som fienden kolliderar med
+        return cave.worldTiles.Where(worldTile => Raylib.CheckCollisionRecs(entityRect, worldTile.tileRect)).ToList(); //Returnerar en lista med de Tiles som fienden kolliderar med
     }
 
     List<Tile> collidingTiles;
@@ -148,20 +146,24 @@ public class Saucer : Entity
     {
         foreach (var saucer in saucers)
         {
-            if (uMath.Distance(saucer.position, _playerPos) < 500)
+            if (uMath.Distance(saucer.position, _playerPos) < 800)
                 isActive = true;
 
-            else if (uMath.Distance(saucer.position, _playerPos) > 700)
+            else if (uMath.Distance(saucer.position, _playerPos) > 1000)
                 isActive = false;
 
             if (isActive)
-                EnemyMovement(_playerPos, cave, saucer);
+                EnemyMovement(_playerPos, cave);
 
             else
                 saucer.position = saucer.position;
 
-            if (Raylib.CheckCollisionRecs(entityRect, _player.playerRect))
-                _player.hp -= Attack(1);
+            if (Raylib.CheckCollisionRecs(saucer.entityRect, _player.playerRect))
+                timer.Start();
+            
+            else   
+                timer.Stop();
+
         }
     }
 
@@ -172,11 +174,11 @@ public class Saucer : Entity
 
     EnemyDirection direction;
 
-    private void EnemyMovement(Vector2 _playerPos, CaveGeneration cave, Saucer _saucer)
+    private void EnemyMovement(Vector2 _playerPos, CaveGeneration cave)
     {
-        _saucer.position = uMath.Lerp(_saucer.position, _playerPos, 0.01f);
+        position = uMath.Lerp(position, _playerPos, 0.01f);
 
-        collidingTiles = CheckCollision(cave, _saucer);
+        collidingTiles = CheckCollision(cave);
 
         direction = GetEnemyDirection(_playerPos);
 
@@ -195,7 +197,6 @@ public class Saucer : Entity
             {
                 if (cave.tileGrid[x, y] == 0 && Random.Shared.Next(0, cave.worldSize * cave.worldSize) < 40 && saucers.Count < amountOfSaucers)
                     SpawnEntity(new Saucer(), new Vector2((int)x * cave.worldSize, (int)y * cave.worldSize));
-                
             }
         }
     }

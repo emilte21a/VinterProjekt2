@@ -74,11 +74,13 @@ public class GameState
                 break;
 
             case StateManager.Game:
-                player.ControlPlayerPosition(caveGeneration, 10);
+                player.Update(caveGeneration, 10, collectible);
                 CameraUpdate();
                 saucer.Update(player.playerPosition, caveGeneration, player);
                 EnableCursor();
                 player.Shoot(15, caveGeneration);
+                if (player.points == 10)
+                    currentState = StateManager.GameOver;
                 break;
         }
     }
@@ -90,7 +92,7 @@ public class GameState
         switch (currentState)
         {
             case StateManager.Start:
-                Raylib.DrawText("scary game", screenWidth / 2, screenHeight / 2, 50, Color.ORANGE);
+                Raylib.DrawText("Evader!", screenWidth / 2, screenHeight / 2, 50, Color.ORANGE);
                 break;
 
             case StateManager.Game:
@@ -109,7 +111,15 @@ public class GameState
                 Raylib.EndMode2D();
                 gUI.DrawGUI(player, saucer);
                 break;
+            
+            case StateManager.GameOver:
+                if (player.points == 10)
+                    Raylib.DrawText("Du vann!", 50, 50, 60, Color.BLUE);
+                else if (player.hp == 0)
+                    Raylib.DrawText("Du förlor", 50, 10, 50, Color.RED);
+                break;
         }
+
         Raylib.EndDrawing();
 
     }
