@@ -24,9 +24,9 @@ public class Entity
 
     public readonly int size = 50;
 
-    public virtual int Attack(int _damage)
+    public virtual void Attack(int _damage, Player _player)
     {
-        return 0;
+
     }
 
     public virtual void Draw()
@@ -48,9 +48,9 @@ public class Entity
         Idle
     }
 
-    public EnemyDirection GetEnemyDirection(Vector2 _playerPos)
+    public EnemyDirection GetEnemyDirection(Vector2 _playerPos, Saucer saucer)
     {
-        Vector2 diff = position - _playerPos;
+        Vector2 diff = saucer.position - _playerPos;
         Vector2 direction = Vector2.Normalize(diff);
         double radians = Math.Atan2(direction.Y, direction.X);
 
@@ -72,44 +72,44 @@ public class Entity
             return EnemyDirection.Idle;
     }
 
-    public void CalculateCollisionSize(EnemyDirection _direction, Tile _collidingTile)
+    public void CalculateCollisionSize(EnemyDirection _direction, Tile _collidingTile, Saucer saucer)
     {
-        Rectangle collisionRec = Raylib.GetCollisionRec(entityRect, _collidingTile.tileRect);
+        Rectangle collisionRec = Raylib.GetCollisionRec(saucer.entityRect, _collidingTile.tileRect);
 
         switch (_direction)
         {
             case EnemyDirection.RightUp:
                 if ((int)collisionRec.height < (int)collisionRec.width)
-                    entityRect.y += (int)collisionRec.height;
+                    saucer.entityRect.y += (int)collisionRec.height;
 
                 else if ((int)collisionRec.height > (int)collisionRec.width)
-                    entityRect.x -= (int)collisionRec.width;
+                    saucer.entityRect.x -= (int)collisionRec.width;
 
                 break;
 
             case EnemyDirection.RightDown:
                 if ((int)collisionRec.height < (int)collisionRec.width)
-                    entityRect.y -= (int)collisionRec.height;
+                    saucer.entityRect.y -= (int)collisionRec.height;
 
                 else if ((int)collisionRec.height > (int)collisionRec.width)
-                    entityRect.x -= (int)collisionRec.width;
+                    saucer.entityRect.x -= (int)collisionRec.width;
 
                 break;
 
             case EnemyDirection.LeftUp:
                 if ((int)collisionRec.height < (int)collisionRec.width)
-                    entityRect.y += (int)collisionRec.height;
+                    saucer.entityRect.y += (int)collisionRec.height;
 
                 else if ((int)collisionRec.height > (int)collisionRec.width)
-                    entityRect.x += (int)collisionRec.width;
+                    saucer.entityRect.x += (int)collisionRec.width;
                 break;
 
             case EnemyDirection.LeftDown:
                 if ((int)collisionRec.height < (int)collisionRec.width)
-                    entityRect.y -= (int)collisionRec.height;
+                    saucer.entityRect.y -= (int)collisionRec.height;
 
                 else if ((int)collisionRec.height > (int)collisionRec.width)
-                    entityRect.x += (int)collisionRec.width;
+                    saucer.entityRect.x += (int)collisionRec.width;
                 break;
         }
     }
@@ -125,19 +125,19 @@ public class Saucer : Entity
 
     System.Timers.Timer timer;
 
-    public Saucer()
+    public Saucer(Player player)
     {
         Hp = 4;
         entityRect = new Rectangle(0, 0, size, size);
         position = new Vector2(-100, 0);
         isActive = true;
         timer = new(interval: 1000);
-        timer.Elapsed += (sender, e) => Attack(1);
+        timer.Elapsed += (sender, e) => Attack(1, player);
     }
 
-    public List<Tile> CheckCollision(CaveGeneration cave)
+    public List<Tile> CheckCollision(CaveGeneration cave, Saucer saucer)
     {
-        return cave.worldTiles.Where(worldTile => Raylib.CheckCollisionRecs(entityRect, worldTile.tileRect)).ToList(); //Returnerar en lista med de Tiles som fienden kolliderar med
+        return cave.worldTiles.Where(worldTile => Raylib.CheckCollisionRecs(saucer.entityRect, worldTile.tileRect)).ToList(); //Returnerar en lista med de Tiles som fienden kolliderar med
     }
 
     List<Tile> collidingTiles;
@@ -153,50 +153,51 @@ public class Saucer : Entity
                 isActive = false;
 
             if (isActive)
-                EnemyMovement(_playerPos, cave);
+                EnemyMovement(_playerPos, cave, saucer);
 
             else
-                saucer.position = saucer.position;
+                saucer.position = uMath.Lerp(saucer.position, saucer.position, 0.05f); // Om fienden inte är aktiv så ska den stanna.
 
             if (Raylib.CheckCollisionRecs(saucer.entityRect, _player.playerRect))
-                timer.Start();
-            
-            else   
+            {
+                if (!timer.Enabled) //Kolla om timern inte är igång
+                    timer.Start();//Starta timern
+            }
+
+            else
                 timer.Stop();
 
         }
     }
 
-    public override int Attack(int _damage)
+    public override void Attack(int _damage, Player _player)
     {
-        return _damage;
+        _player.hp -= _damage;
     }
 
-    EnemyDirection direction;
-
-    private void EnemyMovement(Vector2 _playerPos, CaveGeneration cave)
+    private void EnemyMovement(Vector2 _playerPos, CaveGeneration cave, Saucer saucer)
     {
-        position = uMath.Lerp(position, _playerPos, 0.01f);
+        saucer.position = uMath.Lerp(saucer.position, _playerPos, 0.01f);
 
-        collidingTiles = CheckCollision(cave);
+        collidingTiles = CheckCollision(cave, saucer);
 
-        direction = GetEnemyDirection(_playerPos);
+        EnemyDirection direction = GetEnemyDirection(_playerPos, saucer);
 
         foreach (var colTile in collidingTiles)
         {
             if (colTile != null)
-                CalculateCollisionSize(direction, colTile);
+                CalculateCollisionSize(direction, colTile, saucer);
         }
     }
 
-    public void GenerateEnemies(CaveGeneration cave)
+    public void GenerateEnemies(CaveGeneration cave, Player _player)
     {
         for (int x = 0; x < cave.tileGrid.GetLength(0); x++)
         {
             for (int y = 0; y < cave.tileGrid.GetLength(1); y++)
             {
                 if (cave.tileGrid[x, y] == 0 && Random.Shared.Next(0, cave.worldSize * cave.worldSize) < 40 && saucers.Count < amountOfSaucers)
-                    SpawnEntity(new Saucer(), new Vector2((int)x * cave.worldSize, (int)y * cave.worldSize));
+                    SpawnEntity(new Saucer(_player), new Vector2((int)x * cave.worldSize, (int)y * cave.worldSize));
             }
         }
     }

@@ -44,7 +44,7 @@ public class GameState
         };
         player = new Player() { camera = camera };
 
-        saucer = new Saucer();
+        saucer = new Saucer(player);
     }
     public void Run()
     {
@@ -67,7 +67,7 @@ public class GameState
                     currentState = StateManager.Game;
                     caveGeneration.GenerateTerrain();
                     collectible.GenerateCollectibles(caveGeneration);
-                    saucer.GenerateEnemies(caveGeneration);
+                    saucer.GenerateEnemies(caveGeneration, player);
                     Raylib.HideCursor();
                     Raylib.DisableCursor();
                 }
@@ -75,8 +75,8 @@ public class GameState
 
             case StateManager.Game:
                 player.Update(caveGeneration, 10, collectible);
-                CameraUpdate();
                 saucer.Update(player.playerPosition, caveGeneration, player);
+                CameraUpdate();
                 EnableCursor();
                 player.Shoot(15, caveGeneration);
                 if (player.points == 10)
@@ -92,7 +92,12 @@ public class GameState
         switch (currentState)
         {
             case StateManager.Start:
-                Raylib.DrawText("Evader!", screenWidth / 2, screenHeight / 2, 50, Color.ORANGE);
+                Raylib.DrawText("Evader", 40, 40, 50, Color.ORANGE);
+                Raylib.DrawText("Instructions", 40, 150, 30, Color.ORANGE);
+                Raylib.DrawText("- Shoot blocks to break them", 40, 200, 25, Color.ORANGE);
+                Raylib.DrawText("- Evade the saucers patrolling the planet", 40, 250, 25, Color.ORANGE);
+                Raylib.DrawText("- Gather 10 points by picking up the collectibles scattered throughout the map", 40, 300, 25, Color.ORANGE);
+                Raylib.DrawText("Press F to start!", screenWidth/4, screenHeight/2, 50, Color.ORANGE);
                 break;
 
             case StateManager.Game:
@@ -111,12 +116,13 @@ public class GameState
                 Raylib.EndMode2D();
                 gUI.DrawGUI(player, saucer);
                 break;
-            
+
             case StateManager.GameOver:
+                Raylib.ClearBackground(Color.BLACK);
                 if (player.points == 10)
-                    Raylib.DrawText("Du vann!", 50, 50, 60, Color.BLUE);
+                    Raylib.DrawText("You won!", screenWidth / 2, screenHeight / 2, 60, Color.BLUE);
                 else if (player.hp == 0)
-                    Raylib.DrawText("Du förlor", 50, 10, 50, Color.RED);
+                    Raylib.DrawText("You lost..", 50, 10, 50, Color.RED);
                 break;
         }
 
@@ -127,7 +133,7 @@ public class GameState
     {
         player.playerPosition.X = player.playerRect.x + player.playerRect.width / 2;
         player.playerPosition.Y = player.playerRect.y + player.playerRect.height / 2;
-        camera.target = uMath.Lerp(camera.target, player.playerPosition, 0.1f);
+        camera.target = uMath.Lerp(camera.target, player.playerPosition + Vector2.Normalize(Raylib.GetMousePosition()), 0.1f);
     }
 
     private double RadiansToDegrees()

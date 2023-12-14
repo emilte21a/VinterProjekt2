@@ -12,7 +12,6 @@ public class UniversalMath
 
     public float Distance(Vector2 _from, Vector2 _to)
     {
-
-        return Vector2.Distance(_to, _from);
+        return Vector2.Distance(_from, _to);
     }
 }
