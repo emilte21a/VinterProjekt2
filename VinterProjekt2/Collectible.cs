@@ -4,16 +4,24 @@ using Raylib_cs;
 public class Collectible
 {
 
-    int amountOfCollectibles = 20;
+    int amountOfCollectibles = 20; 
 
+    //En array med typen texture2D
     Texture2D[] collectibleTextures;
+
+    //Rektangel för collectibles
     public Rectangle collectibleRec;
 
+    //Texturen för varje collectible
     public Texture2D texture;
 
+    //En lista med alla collectibles 
     public List<Collectible> collectibles;
+
+    //En lista med alla collectibles som ska förstöras
     public List<Collectible> collectiblesToDestroy;
 
+    //Varje collectibles position anges som vector2 istället för att använda rektangelns x och y värden
     public Vector2 position
     {
         get => new Vector2(collectibleRec.x, collectibleRec.y);
@@ -31,12 +39,12 @@ public class Collectible
         collectibleTextures = new Texture2D[2];
         collectibleTextures[0] = Raylib.LoadTexture("Bilder/Battery.png");
         collectibleTextures[1] = Raylib.LoadTexture("Bilder/Fueltank.png");
-        texture = collectibleTextures[Random.Shared.Next(0, collectibleTextures.Length)];
+        texture = collectibleTextures[Random.Shared.Next(0, collectibleTextures.Length)]; //Slumpmässig textur för varje collectible
         collectibleRec = new Rectangle(0, 0, texture.width, texture.height);
         position = new Vector2(0, 0);
     }
 
-
+    //Metod som genererar alla collectibles
     public void GenerateCollectibles(CaveGeneration cave)
     {
         for (int x = 0; x < cave.tileGrid.GetLength(0); x++)
@@ -47,14 +55,17 @@ public class Collectible
                     SpawnCollectible(new Collectible(), new Vector2((int)x * cave.worldSize, (int)y * cave.worldSize));
             }
         }
+        //Kollar om det borde finnas en collectible på varje position i tileGrid
     }
 
-    private void SpawnCollectible(Collectible _collectible, Vector2 _position)
+    //Metod som spawnar collectibles på respektive position
+    private void SpawnCollectible(Collectible collectible, Vector2 position)
     {
-        _collectible.position = _position;
-        collectibles.Add(_collectible);
+        collectible.position = position;
+        collectibles.Add(collectible);
     }
 
+    //Metod som ritar ut alla collectibles
     public void DrawCollectibles()
     {
         for (int i = 0; i < collectibles.Count; i++)

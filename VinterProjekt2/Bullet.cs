@@ -5,20 +5,23 @@ using System.Runtime.InteropServices;
 public class Bullet
 {
     float speed;
+
     public Rectangle bulletRec;
 
     Vector2 direction;
 
-    public Vector2 position { get; private set; }
+    public Vector2 position { get; private set; } //Varje skott har en egen position
 
-    public Bullet(Vector2 _position, Vector2 _direction, float _speed)
+    //Instans av ett skott där varje skott har privata positioner, riktningar, rektanglar och hastigheter
+    public Bullet(Vector2 _position, Vector2 _direction, float _speed) 
     {
-        position = _position;
+        position = _position; 
         this.direction = _direction;
         this.speed = _speed;
         bulletRec = new Rectangle(position.X, position.Y, 5, 5);
     }
 
+    //Metod som uppdaterar skottets position
     public void Update()
     {
         position += direction * speed;
@@ -26,8 +29,10 @@ public class Bullet
         bulletRec.y = position.Y;
     }
 
+    //En lista med de tiles som skotten kolliderar med
     public List<Tile> collidingTiles;
 
+    //Metod som kollar om ett skott borde förstöras eller inte
     public bool ShouldDestroy(Rectangle _playerRect, CaveGeneration cave)
     {
         collidingTiles = cave.TileToDestroy(cave, bulletRec);
@@ -44,8 +49,9 @@ public class Bullet
             return true;
 
         return false;
-    }
+    }  
 
+    //Metod som rituar ut skott
     public void Draw()
     {
         Raylib.DrawRectangleRec(bulletRec, Color.RED);

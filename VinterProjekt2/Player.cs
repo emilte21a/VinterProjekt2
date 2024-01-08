@@ -7,16 +7,22 @@ using Raylib_cs;
 
 public class Player
 {
+    //Spelarens liv
     public int hp;
 
-    public float points = 0;
+    //Mängden collectibles som spelaren har plockat upp
+    public float amountOfPoints = 0;
 
+    //Spelar rektangeln
     public Rectangle playerRect;
 
+    //Spelarens position i en vector2
     public Vector2 playerPosition;
 
+    //Spelar spriten
     public Texture2D playerSprite = Raylib.LoadTexture("Bilder/CharacterSpriteSheet.png");
 
+    //"Spelarens kamera"
     public Camera2D camera { get; init; }
 
     public Player()
@@ -25,36 +31,39 @@ public class Player
         playerRect = new Rectangle(-50, 0, playerSprite.width / 6, playerSprite.height);
     }
 
-    public float MovePlayerX(float _playerPosX, float _speed)
+    //Metod som ändrar spelarens x-position
+    public float MovePlayerX(float playerPosX, float speed)
     {
         if (Raylib.IsKeyDown(KeyboardKey.KEY_A))
         {
-            _playerPosX -= _speed * Raylib.GetFrameTime() * 50;
+            playerPosX -= speed * Raylib.GetFrameTime() * 50;
         }
 
         if (Raylib.IsKeyDown(KeyboardKey.KEY_D))
         {
-            _playerPosX += _speed * Raylib.GetFrameTime() * 50;
+            playerPosX += speed * Raylib.GetFrameTime() * 50;
         }
 
-        return _playerPosX;
+        return playerPosX;
     }
 
-    public float MovePlayerY(float _playerPosY, float _speed)
+    //Metod som ändrar spelarens y-position
+    public float MovePlayerY(float playerPosY, float speed)
     {
         if (Raylib.IsKeyDown(KeyboardKey.KEY_W))
         {
-            _playerPosY -= _speed * Raylib.GetFrameTime() * 50;
+            playerPosY -= speed * Raylib.GetFrameTime() * 50;
         }
 
         if (Raylib.IsKeyDown(KeyboardKey.KEY_S))
         {
-            _playerPosY += _speed * Raylib.GetFrameTime() * 50;
+            playerPosY += speed * Raylib.GetFrameTime() * 50;
         }
 
-        return _playerPosY;
+        return playerPosY;
     }
 
+    //En enum för alla olika riktningar som spelaren rör sig
     public enum PlayerDirection
     {
         Idle,
@@ -67,7 +76,8 @@ public class Player
         LeftUp,
         LeftDown
     }
-
+    
+    //Metod som returnerar spelarens riktning beroende på vilka knappar som trycks
     public PlayerDirection GetPlayerDirection()
     {
         bool isKeyDownA = Raylib.IsKeyDown(KeyboardKey.KEY_A);
@@ -103,18 +113,24 @@ public class Player
             return PlayerDirection.Idle;
     }
 
-    List<Bullet> bullets = new();
-    List<Bullet> bulletsToDestroy = new();
-
-    public void Shoot(float _speed, CaveGeneration cave)
+    List<Bullet> bullets = new(); //Lista med alla skott som är aktiva
+    List<Bullet> bulletsToDestroy = new(); //Lista med de skott som ska förstöras
+    
+    //Metod som tillåter spelaren att skjuta skott
+    public void Shoot(float speed, CaveGeneration cave)
     {
         Vector2 mousePosition = Raylib.GetMousePosition() - camera.offset;
         Vector2 pos = new Vector2(playerRect.x, playerRect.y);
         Vector2 diff = mousePosition - pos;
         Vector2 bulletDirection = Vector2.Normalize(diff + pos);
 
+        //Hämta vilken riktning som skottet ska skjutas mot
+
         if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
-            bullets.Add(new Bullet(new Vector2(playerRect.x + playerRect.width / 2, playerRect.y + playerRect.height / 2), bulletDirection, _speed));
+            bullets.Add(new Bullet(new Vector2(playerRect.x + playerRect.width / 2, playerRect.y + playerRect.height / 2), bulletDirection, speed));
+
+        //Om vänster musknapp trycks
+            //Skapa ett nytt skott från spelarens position mot musens riktning
 
         foreach (var bullet in bullets.ToList())
         {
@@ -124,34 +140,41 @@ public class Player
             {
                 bulletsToDestroy.Add(bullet);
             }
-        }
+        }  
+        //Uppdatera varje skotts position och om de ska förstöras
 
         foreach (var bullet in bulletsToDestroy)
         {
             bullets.Remove(bullet);
-        }
+        }  
 
         bulletsToDestroy.Clear();
     }
+
+    //Metod som ritar ut varje skott
     public void DrawBullets()
     {
         foreach (var bullet in bullets)
             bullet.Draw();
     }
 
-    int frame { get; set; }
+
+    int frame = 1;
     float elapsed = 0;
-    public int DrawPlayer(int _maxFrames, float _timePerFrame)
+
+    //Metod som bestämmer vilken frame en animation ska vara på från ett spritesheet
+    public int DrawPlayer(int maxFrames, float timePerFrame)
     {
         elapsed += Raylib.GetFrameTime();
-        if (elapsed > _timePerFrame)
+        if (elapsed > timePerFrame)
         {
             frame++;
             elapsed = 0;
         }
-        return frame %= _maxFrames;
+        return frame %= maxFrames;
     }
 
+    //Metod som hanterar hur mycket skada spelaren tar
     public void Damage(int _damage)
     {
         hp -= _damage;
@@ -159,11 +182,12 @@ public class Player
 
     //[Kollisioner]==========================================================================
 
-    public void CalculateCollisionSize(PlayerDirection _direction, Tile _collidingTile)
+    //Metod som korrigerar spelarens position när de kolliderar med worldtiles beroende på dess riktning 
+    public void CalculateCollisionSize(PlayerDirection direction, Tile collidingTile)
     {
-        var collisionRec = Raylib.GetCollisionRec(playerRect, _collidingTile.tileRect);
+        var collisionRec = Raylib.GetCollisionRec(playerRect, collidingTile.tileRect);
 
-        switch (_direction)
+        switch (direction)
         {
             case PlayerDirection.Right:
                 playerRect.x -= (int)collisionRec.width;
@@ -225,31 +249,34 @@ public class Player
         }
     }
 
-    public List<Tile> collidingTiles; //En lista med de Tiles som spelaren kolliderar med
+    public List<Tile> collidingTiles; //En lista med de worldtiles som spelaren kolliderar med
 
+    //Metod som returnerar en lista med de worldtiles som spelaren kolliderar med
     public List<Tile> CheckCollisionsWithTiles(CaveGeneration cave)
     {
         return cave.worldTiles.Where(worldTile => Raylib.CheckCollisionRecs(playerRect, worldTile.tileRect)).ToList(); //Returnerar en lista med de Tiles som spelaren kolliderar med
     }
+
+    //Metod som returnerar en lista med de collectibles som spelaren kolliderar med
     public List<Collectible> CheckCollisionsWithCollectibles(Collectible collectible)
     {
         return collectible.collectibles.Where(collectible => Raylib.CheckCollisionRecs(playerRect, collectible.collectibleRec)).ToList(); //Returnerar en lista med de Tiles som spelaren kolliderar med
     }
 
-    public void Update(CaveGeneration cave, float _speed, Collectible collectible)
+    //Metod som uppdaterar spelarens logik
+    public void Update(CaveGeneration cave, float movementSpeed, Collectible collectible)
     {
-        collectible.collectiblesToDestroy = CheckCollisionsWithCollectibles(collectible);
+        collectible.collectiblesToDestroy = CheckCollisionsWithCollectibles(collectible); //Lista med de collectibles som ska tas bort
 
-        foreach (var collect in collectible.collectiblesToDestroy)
+        foreach (var collectedItem in collectible.collectiblesToDestroy)
         {
-            collectible.collectibles.Remove(collect);
-            points += 1;
+            collectible.collectibles.Remove(collectedItem);
+            amountOfPoints += 1;
         }
+        //För varje collectible som spelaren plockat upp, så ska spelarens poäng öka med 1 samtidigt som det föremålet som plockats upp förstörs
 
-        bulletsToDestroy.Clear();
-
-        playerRect.x = (int)MovePlayerX(playerRect.x, _speed);
-        playerRect.y = (int)MovePlayerY(playerRect.y, _speed);
+        playerRect.x = (int)MovePlayerX(playerRect.x, movementSpeed);
+        playerRect.y = (int)MovePlayerY(playerRect.y, movementSpeed);
 
         collidingTiles = CheckCollisionsWithTiles(cave);
 
@@ -262,5 +289,7 @@ public class Player
                 CalculateCollisionSize(direction, colTile);
             }
         }
+
+        Shoot(15, cave); //Uppdatera skjutmetoden
     }
 }

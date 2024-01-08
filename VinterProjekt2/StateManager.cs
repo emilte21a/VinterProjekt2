@@ -1,8 +1,6 @@
 using System;
 
-
-
-public enum StateManager
+public enum SceneManager 
 {
     Start,
     Game,
