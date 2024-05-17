@@ -76,7 +76,7 @@ public class Player
         LeftUp,
         LeftDown
     }
-    
+
     //Metod som returnerar spelarens riktning beroende på vilka knappar som trycks
     public PlayerDirection GetPlayerDirection()
     {
@@ -113,9 +113,9 @@ public class Player
             return PlayerDirection.Idle;
     }
 
-    List<Bullet> bullets = new(); //Lista med alla skott som är aktiva
+    Stack<Bullet> bullets = new(); //Lista med alla skott som är aktiva
     List<Bullet> bulletsToDestroy = new(); //Lista med de skott som ska förstöras
-    
+
     //Metod som tillåter spelaren att skjuta skott
     public void Shoot(float speed, CaveGeneration cave)
     {
@@ -127,10 +127,10 @@ public class Player
         //Hämta vilken riktning som skottet ska skjutas mot
 
         if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
-            bullets.Add(new Bullet(new Vector2(playerRect.x + playerRect.width / 2, playerRect.y + playerRect.height / 2), bulletDirection, speed));
+            bullets.Push(new Bullet(new Vector2(playerRect.x + playerRect.width / 2, playerRect.y + playerRect.height / 2), bulletDirection, speed));
 
         //Om vänster musknapp trycks
-            //Skapa ett nytt skott från spelarens position mot musens riktning
+        //Skapa ett nytt skott från spelarens position mot musens riktning
 
         foreach (var bullet in bullets.ToList())
         {
@@ -140,13 +140,13 @@ public class Player
             {
                 bulletsToDestroy.Add(bullet);
             }
-        }  
+        }
         //Uppdatera varje skotts position och om de ska förstöras
 
         foreach (var bullet in bulletsToDestroy)
         {
-            bullets.Remove(bullet);
-        }  
+            bullets.Pop();
+        }
 
         bulletsToDestroy.Clear();
     }
@@ -260,7 +260,16 @@ public class Player
     //Metod som returnerar en lista med de collectibles som spelaren kolliderar med
     public List<Collectible> CheckCollisionsWithCollectibles(Collectible collectible)
     {
-        return collectible.collectibles.Where(collectible => Raylib.CheckCollisionRecs(playerRect, collectible.collectibleRec)).ToList(); //Returnerar en lista med de Tiles som spelaren kolliderar med
+        List<Collectible> collisionWithCollectible = new List<Collectible>();
+
+        foreach (var kvp in collectible.collectibles)
+        {
+            if (Raylib.CheckCollisionRecs(playerRect, kvp.Value.collectibleRec))
+            {
+                collisionWithCollectible.Add(kvp.Value);
+            }
+        }
+        return collisionWithCollectible;//collectible.collectibles.Where(collectible => Raylib.CheckCollisionRecs(playerRect, collectible.Value.collectibleRec)).ToList(); //Returnerar en lista med de Tiles som spelaren kolliderar med
     }
 
     //Metod som uppdaterar spelarens logik
@@ -270,7 +279,7 @@ public class Player
 
         foreach (var collectedItem in collectible.collectiblesToDestroy)
         {
-            collectible.collectibles.Remove(collectedItem);
+            collectible.collectibles.Remove(1);
             amountOfPoints += 1;
         }
         //För varje collectible som spelaren plockat upp, så ska spelarens poäng öka med 1 samtidigt som det föremålet som plockats upp förstörs

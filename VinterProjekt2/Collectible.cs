@@ -4,7 +4,7 @@ using Raylib_cs;
 public class Collectible
 {
 
-    int amountOfCollectibles = 20; 
+    int amountOfCollectibles = 20;
 
     //En array med typen texture2D
     Texture2D[] collectibleTextures;
@@ -16,7 +16,7 @@ public class Collectible
     public Texture2D texture;
 
     //En lista med alla collectibles 
-    public List<Collectible> collectibles;
+    public Dictionary<int, Collectible> collectibles;
 
     //En lista med alla collectibles som ska förstöras
     public List<Collectible> collectiblesToDestroy;
@@ -59,16 +59,21 @@ public class Collectible
     }
 
     //Metod som spawnar collectibles på respektive position
+    int coll = 1;
     private void SpawnCollectible(Collectible collectible, Vector2 position)
     {
         collectible.position = position;
-        collectibles.Add(collectible);
+        collectibles.Add(coll, collectible);
+        coll++;
     }
 
     //Metod som ritar ut alla collectibles
     public void DrawCollectibles()
     {
-        for (int i = 0; i < collectibles.Count; i++)
-            Raylib.DrawTexture(collectibles[i].texture, (int)collectibles[i].position.X, (int)collectibles[i].position.Y, Color.WHITE);
-    }   
+        foreach (var kvp in collectibles)
+        {
+
+            Raylib.DrawTexture(kvp.Value.texture, (int)kvp.Value.position.X, (int)kvp.Value.position.Y, Color.WHITE);
+        }
+    }
 }

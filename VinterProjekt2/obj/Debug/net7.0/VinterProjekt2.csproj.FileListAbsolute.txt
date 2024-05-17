@@ -1,4 +1,13 @@
 C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\VinterProjekt2.exe
+C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\Bakgrund.png
+C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\Battery.png
+C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\CharacterSpriteSheet.png
+C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\Core.png
+C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\Fueltank.png
+C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\HP.png
+C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\MouseCursor.png
+C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\Stone.png
+C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\StoneWallpaper.png
 C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\VinterProjekt2.deps.json
 C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\VinterProjekt2.runtimeconfig.json
 C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\VinterProjekt2.dll
@@ -20,12 +29,3 @@ C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\obj\Debug\net7.0\refin
 C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\obj\Debug\net7.0\VinterProjekt2.pdb
 C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\obj\Debug\net7.0\VinterProjekt2.genruntimeconfig.cache
 C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\obj\Debug\net7.0\ref\VinterProjekt2.dll
-c:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\MouseCursor.png
-C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\CharacterSpriteSheet.png
-C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\Stone.png
-C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\Bakgrund.png
-C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\Core.png
-C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\HP.png
-C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\StoneWallpaper.png
-C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\Battery.png
-C:\Users\emil.ulinjohansson\VinterProjekt2\VinterProjekt2\bin\Debug\net7.0\Bilder\Fueltank.png
